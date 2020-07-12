@@ -1,26 +1,33 @@
-export default function sketch(s) {
+// import p5Gif from 'p5.gif/dist/p5gif.min.js';
+import p5Gif from 'p5.gif/dist/p5gif.js';
+
+
+export default function sketch({ p5Instance, gifs }) {
   let x, y, backgroundColor;
 
   const width = 500;
   const height = 500;
 
-  s.setup = () => {
-    s.createCanvas(width, height);
-    backgroundColor = s.color(s.random(255), s.random(255), s.random(255));
+  window.p5 = p5Instance
+  var gif = new p5Gif.Gif(gifs[0].url);
 
-    x = s.random(width);
+  p5Instance.setup = () => {
+    p5Instance.createCanvas(width, height);
+    backgroundColor = p5Instance.color(p5Instance.random(255), p5Instance.random(255), p5Instance.random(255));
+
+    x = p5Instance.random(width);
     y = height / 2;
   };
 
-  s.draw = () => {
-    s.background(backgroundColor);
-    s.fill(s.color(255, 0, 0));
-    s.ellipse(x, y, 100, 100);
+  p5Instance.draw = () => {
+    p5Instance.background(backgroundColor);
+    p5Instance.fill(p5Instance.color(255, 0, 0));
+    p5Instance.ellipse(x, y, 100, 100);
 
     x = (x + 1) % width;
   };
 
-  s.mousePressed = () => {
-    backgroundColor = s.color(s.random(255), s.random(255), s.random(255));
+  p5Instance.mousePressed = () => {
+    backgroundColor = p5Instance.color(p5Instance.random(255), p5Instance.random(255), p5Instance.random(255));
   };
 }
