@@ -14,29 +14,30 @@ let config = {
 };
 let m = 0;
 
-export default function sketch ({ p5Instance, gifs }) {
-  let x, y, backgroundColor;
+export default function sketch ({ p5Instance, gifs, textManager }) {
 
   const width = 500;
   const height = 500;
 
   p5Instance.setup = () => {
+    p5Instance.frameRate(0.5)
     p5Instance.noStroke();
-
+    // p5Instance.textAlign(p5Instance.CENTER, p5Instance.CENTER)
+    p5Instance.textSize(16)
     p5Instance.createCanvas(width, height);
-    backgroundColor = p5Instance.color(p5Instance.random(255), p5Instance.random(255), p5Instance.random(255));
-
+    p5Instance.noLoop()
+    draw()
   };
 
-  p5Instance.draw = () => {
-    if (!config.paused && (p5Instance.millis() - m > config.delay)) {
+  p5Instance.mouseClicked = () => {
+    draw()
+  }
+
+  const draw = () => {
+    // if (!config.paused && (p5Instance.millis() - m > config.delay)) {
       drawPix();
-      m = p5Instance.millis();
-    }
-  };
-
-  p5Instance.mousePressed = () => {
-    backgroundColor = p5Instance.color(p5Instance.random(255), p5Instance.random(255), p5Instance.random(255));
+    //   m = p5Instance.millis();
+    // }
   };
 
   const setPixSize = (direction, pixSize, stepSize) => {
@@ -48,20 +49,24 @@ export default function sketch ({ p5Instance, gifs }) {
   // loop purely for manual monitoring
   // for export [for, say, a gif], do it faster
   const drawPix = () => {
-    const pixSize = 20;
+    const pixSize = 30;
     pixelateImageUpperLeft(pixSize);
+    // TODO: and draw a letter in it
   }
 
   // there's an issue where the right-hand strip comes and goes
   // it's an average problem. probably "correct"
   // but I don't like how it looks in a sequence
   const pixelateImageUpperLeft = (pxSize) => {
-    // TODO: work from center of image outward
-    // or optionally pick the center
-    for (var x = 0; x < width; x += pxSize) {
-      for (var y = 0; y < height; y += pxSize) {
+    p5Instance.textAlign(p5Instance.CENTER, p5Instance.CENTER) 
+
+    for (var y = 0; y < height; y += pxSize) {
+      for (var x = 0; x < width; x += pxSize) {
         p5Instance.fill(getColor(x, y, pxSize));
         p5Instance.rect(x, y, pxSize, pxSize);
+        p5Instance.fill(getColor(x, y, pxSize));
+        const nextChar = textManager.getchar()
+        p5Instance.text(nextChar, x + pxSize / 2, y + pxSize / 2)
       }
     }
   }

@@ -1,6 +1,7 @@
 import p5 from 'p5';
 import { GiphyFetch } from '@giphy/js-fetch-api'
 import sketch from './sketch';
+import TextManager from './TextManager'
 
 const theStuff = () => {
 
@@ -17,23 +18,9 @@ const theStuff = () => {
         })
 
     const builder = (p5Instance) => {
-        sketch({ p5Instance, gifs }) // eslint-disable-line no-new
+        const textManager = new TextManager()
+        sketch({ p5Instance, gifs, textManager }) // eslint-disable-line no-new
     }
-
-    // randomPost()
-    //     .then((texts) => {
-    //         this.corpus = this.corpus.concat(texts)
-    //     })
-    //     .catch()
-    //     .finally((_) => {
-    //         this.currentText = randElem(this.corpus)
-    //         this.resetTextPosition()
-    //         new P5(builder, 'sketch-holder') // eslint-disable-line no-new
-    //     })
-
-
 }
 
 theStuff()
-
-
