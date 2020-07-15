@@ -1,6 +1,3 @@
-// import p5Gif from 'p5.gif/dist/p5gif.min.js';
-import p5Gif from 'p5.gif/dist/p5gif.js';
-
 let config = {
   paused: false,
   delay: 100,
@@ -10,11 +7,13 @@ let config = {
   step: function () { logger('step'); singlestep = true; },
   type: 2,
   dMin: 5,
-  dMax: 20
+  dMax: 20,
+  imageLoaded: false
 };
 let m = 0;
+let img = null;
 
-export default function sketch ({ p5Instance, gifs, textManager }) {
+export default function sketch ({ p5Instance, textManager }) {
 
   const width = 500;
   const height = 500;
@@ -22,10 +21,10 @@ export default function sketch ({ p5Instance, gifs, textManager }) {
   p5Instance.setup = () => {
     p5Instance.frameRate(0.5)
     p5Instance.noStroke();
-    // p5Instance.textAlign(p5Instance.CENTER, p5Instance.CENTER)
     p5Instance.textSize(16)
     p5Instance.createCanvas(width, height);
     p5Instance.noLoop()
+    setImage('./assets/images/fire.01.jpeg')
     draw()
   };
 
@@ -35,15 +34,19 @@ export default function sketch ({ p5Instance, gifs, textManager }) {
 
   const draw = () => {
     // if (!config.paused && (p5Instance.millis() - m > config.delay)) {
-      drawPix();
+    if (config.imageLoaded) drawPix();
     //   m = p5Instance.millis();
     // }
   };
 
-  const setPixSize = (direction, pixSize, stepSize) => {
-    pixSize = (pixSize + (direction * stepSize));
-    if (pixSize < stepSize) pixSize = stepSize;
-    return pixSize;
+  const imageReady = () => {
+    img.loadPixels()
+    config.imageLoaded = true
+  }
+
+  const setImage = (filename) => {
+    config.imageLoaded = false
+    img = p5Instance.loadImage(filename, imageReady)
   }
 
   // loop purely for manual monitoring
@@ -58,7 +61,7 @@ export default function sketch ({ p5Instance, gifs, textManager }) {
   // it's an average problem. probably "correct"
   // but I don't like how it looks in a sequence
   const pixelateImageUpperLeft = (pxSize) => {
-    p5Instance.textAlign(p5Instance.CENTER, p5Instance.CENTER) 
+    p5Instance.textAlign(p5Instance.CENTER, p5Instance.CENTER)
 
     for (var y = 0; y < height; y += pxSize) {
       for (var x = 0; x < width; x += pxSize) {
@@ -66,6 +69,7 @@ export default function sketch ({ p5Instance, gifs, textManager }) {
         p5Instance.rect(x, y, pxSize, pxSize);
         p5Instance.fill(getColor(x, y, pxSize));
         const nextChar = textManager.getchar()
+        p5Instance.fill('#000000'); // temp color
         p5Instance.text(nextChar, x + pxSize / 2, y + pxSize / 2)
       }
     }
@@ -92,8 +96,12 @@ export default function sketch ({ p5Instance, gifs, textManager }) {
     // const averageColor = color(r / pixelCount, g / pixelCount, b / pixelCount);
     // return averageColor;
 
+    var pix = img.drawingContext.getImageData(xLoc, yLoc, 1, 1).data
+    return p5Instance.color(pix[0], pix[1], pix[2])
+
+
     // temp random
-    return p5Instance.color(p5Instance.random(255), p5Instance.random(255), p5Instance.random(255));
+    // return p5Instance.color(p5Instance.random(255), p5Instance.random(255), p5Instance.random(255));
   }
 
 

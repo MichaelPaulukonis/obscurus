@@ -1,7 +1,10 @@
 const path = require('path');
+const webpack = require('webpack')
 const Dotenv = require('dotenv-webpack');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const CopyWebpackPlugin = require('copy-webpack-plugin');
+const loader = require('./loadImages.js')
+const images = loader('./assets/images')
 
 module.exports = {
   entry: {
@@ -33,6 +36,10 @@ module.exports = {
   },
   plugins: [
     new Dotenv(),
+    new webpack.DefinePlugin({
+      VERSION: JSON.stringify(require('./package.json').version),
+      IMAGES: JSON.stringify(images)
+    }),
     new HtmlWebpackPlugin({
       template: path.resolve(__dirname, 'src', 'index.html'),
       inject: 'body',
