@@ -1,32 +1,29 @@
-let config = {
+const config = {
   paused: false,
   delay: 100,
   initialSize: 5,
   stepSize: 5,
   maxSteps: 20,
-  step: function () { logger('step'); singlestep = true; },
   type: 2,
   dMin: 5,
   dMax: 20,
   imageLoaded: false
-};
-let m = 0;
-let img = null;
+}
+let img = null
 
 export default function sketch ({ p5Instance, textManager }) {
-
-  const width = 500;
-  const height = 500;
+  const width = 500
+  const height = 500
 
   p5Instance.setup = () => {
     p5Instance.frameRate(0.5)
-    p5Instance.noStroke();
+    p5Instance.noStroke()
     p5Instance.textSize(16)
-    p5Instance.createCanvas(width, height);
+    p5Instance.createCanvas(width, height)
     p5Instance.noLoop()
     setImage('./assets/images/fire.01.jpeg')
     draw()
-  };
+  }
 
   p5Instance.mouseClicked = () => {
     draw()
@@ -34,10 +31,10 @@ export default function sketch ({ p5Instance, textManager }) {
 
   const draw = () => {
     // if (!config.paused && (p5Instance.millis() - m > config.delay)) {
-    if (config.imageLoaded) drawPix();
+    if (config.imageLoaded) drawPix()
     //   m = p5Instance.millis();
     // }
-  };
+  }
 
   const imageReady = () => {
     img.loadPixels()
@@ -49,28 +46,31 @@ export default function sketch ({ p5Instance, textManager }) {
     img = p5Instance.loadImage(filename, imageReady)
   }
 
-  // loop purely for manual monitoring
-  // for export [for, say, a gif], do it faster
   const drawPix = () => {
-    const pixSize = 30;
-    pixelateImageUpperLeft(pixSize);
-    // TODO: and draw a letter in it
+    const cellSize = 30
+    const gridSize = {
+      x: Math.floor(width / cellSize),
+      y: Math.floor(height / cellSize)
+    }
+    // the above ARE constants for the life of the canvas/backing image
+    // but on each subsequent draw the offset will change
+    const offset = { x: p5Instance.random(img.width - gridSize.x), y: p5Instance.random(img.height - gridSize.y) }
+    pixelateImageUpperLeft({ gridSize, cellSize, offset })
   }
 
   // there's an issue where the right-hand strip comes and goes
   // it's an average problem. probably "correct"
   // but I don't like how it looks in a sequence
-  const pixelateImageUpperLeft = (pxSize) => {
+  const pixelateImageUpperLeft = ({ gridSize, cellSize, offset }) => {
     p5Instance.textAlign(p5Instance.CENTER, p5Instance.CENTER)
 
-    for (var y = 0; y < height; y += pxSize) {
-      for (var x = 0; x < width; x += pxSize) {
-        p5Instance.fill(getColor(x, y, pxSize));
-        p5Instance.rect(x, y, pxSize, pxSize);
-        p5Instance.fill(getColor(x, y, pxSize));
+    for (var y = 0; y <= gridSize.y; y++) {
+      for (var x = 0; x <= gridSize.x; x++) {
+        p5Instance.fill(getColor(x, y, offset))
+        p5Instance.rect(x * cellSize, y * cellSize, cellSize, cellSize)
         const nextChar = textManager.getchar()
-        p5Instance.fill('#000000'); // temp color
-        p5Instance.text(nextChar, x + pxSize / 2, y + pxSize / 2)
+        p5Instance.fill('#000000') // temp color
+        p5Instance.text(nextChar, (x * cellSize) + cellSize / 2, (y * cellSize) + cellSize / 2)
       }
     }
   }
@@ -78,7 +78,7 @@ export default function sketch ({ p5Instance, textManager }) {
   // average code based on http://stackoverflow.com/a/12408627/41153
   // this is likely to fail if xLoc,yLoc is with pixSize of width,height
   // but works for what I'm currently doing....
-  const getColor = (xLoc, yLoc, cellSize) => {
+  const getColor = (xLoc, yLoc, offset) => {
     // if (yLoc < 0) { yLoc = 0 }
     // if (xLoc < 0) { xLoc = 0 }
     // let r = 0, b = 0, g = 0;
@@ -96,13 +96,7 @@ export default function sketch ({ p5Instance, textManager }) {
     // const averageColor = color(r / pixelCount, g / pixelCount, b / pixelCount);
     // return averageColor;
 
-    var pix = img.drawingContext.getImageData(xLoc, yLoc, 1, 1).data
+    var pix = img.drawingContext.getImageData(xLoc + offset.x, yLoc + offset.y, 1, 1).data
     return p5Instance.color(pix[0], pix[1], pix[2])
-
-
-    // temp random
-    // return p5Instance.color(p5Instance.random(255), p5Instance.random(255), p5Instance.random(255));
   }
-
-
 }

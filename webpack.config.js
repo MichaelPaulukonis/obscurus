@@ -1,8 +1,8 @@
-const path = require('path');
+const path = require('path')
 const webpack = require('webpack')
-const Dotenv = require('dotenv-webpack');
-const HtmlWebpackPlugin = require('html-webpack-plugin');
-const CopyWebpackPlugin = require('copy-webpack-plugin');
+const Dotenv = require('dotenv-webpack')
+const HtmlWebpackPlugin = require('html-webpack-plugin')
+const CopyWebpackPlugin = require('copy-webpack-plugin')
 const loader = require('./loadImages.js')
 const images = loader('./assets/images')
 
@@ -14,7 +14,7 @@ module.exports = {
     contentBase: path.resolve(__dirname, 'dist'),
     port: 8080,
     open: true,
-    stats: 'errors-only',
+    stats: 'errors-only'
   },
   output: {
     path: path.resolve(__dirname, 'dist'),
@@ -30,9 +30,9 @@ module.exports = {
       {
         loader: 'babel-loader',
         test: /\.js$/,
-        exclude: /node_modules/g,
+        exclude: /node_modules/g
       }
-    ],
+    ]
   },
   plugins: [
     new Dotenv(),
@@ -42,14 +42,14 @@ module.exports = {
     }),
     new HtmlWebpackPlugin({
       template: path.resolve(__dirname, 'src', 'index.html'),
-      inject: 'body',
+      inject: 'body'
     }),
     new CopyWebpackPlugin([
       {
         from: path.resolve(__dirname, 'assets'),
-        to: path.resolve(__dirname, 'dist', 'assets'),
+        to: path.resolve(__dirname, 'dist', 'assets')
       }
-    ]),
+    ])
   ],
   devtool: 'source-map'
-};
+}

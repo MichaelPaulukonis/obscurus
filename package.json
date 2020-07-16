@@ -6,7 +6,9 @@
     "dev": "npm start",
     "start": "webpack-dev-server --watch",
     "build": "npm run clean && webpack -p",
-    "clean": "rm -rf dist"
+    "clean": "rm -rf dist",
+    "lint:fix": "standard --fix",
+    "lint": "standard"
   },
   "dependencies": {
     "@babel/polyfill": "^7.10.4",
@@ -23,6 +25,7 @@
     "copy-webpack-plugin": "^5.1.1",
     "dotenv-webpack": "^2.0.0",
     "html-webpack-plugin": "^3.2.0",
+    "standard": "^14.3.4",
     "webpack": "^4.41.4",
     "webpack-cli": "^3.3.10",
     "webpack-dev-server": "^3.10.1"
