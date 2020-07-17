@@ -1,23 +1,21 @@
 const config = {
+  cellSize: 30,
+  width: 500,
+  height: 500,
+  frameRate: 10,
+  textSize: 16,
   paused: false,
-  delay: 100,
-  initialSize: 5,
-  stepSize: 5,
-  maxSteps: 20,
-  type: 2,
-  dMin: 5,
-  dMax: 20,
   imageLoaded: false
 }
 let img = null
 
 export default function sketch ({ p5Instance, textManager }) {
-  const width = 500
-  const height = 500
-  const cellSize = 30
+  // const config.width = 500
+  // const config.height = 500
+  // const config.cellSize = 30
   const gridSize = {
-    x: Math.floor(width / cellSize),
-    y: Math.floor(height / cellSize)
+    x: Math.floor(config.width / config.cellSize),
+    y: Math.floor(config.height / config.cellSize)
   }
 
   const initialOffset = () => ({
@@ -30,10 +28,12 @@ export default function sketch ({ p5Instance, textManager }) {
   let vectorY = { direction: 1, speed: 1 }
 
   p5Instance.setup = () => {
-    p5Instance.frameRate(10)
+    p5Instance.frameRate(config.frameRate)
     p5Instance.noStroke()
-    p5Instance.textSize(16)
-    p5Instance.createCanvas(width, height)
+    p5Instance.textSize(config.textSize)
+    p5Instance.textAlign(p5Instance.CENTER, p5Instance.CENTER)
+
+    p5Instance.createCanvas(config.width, config.height)
     // p5Instance.noLoop()
     setImage('./assets/images/fire.01.jpeg')
     draw()
@@ -44,10 +44,9 @@ export default function sketch ({ p5Instance, textManager }) {
   }
 
   const draw = () => {
-    // if (!config.paused && (p5Instance.millis() - m > config.delay)) {
-    if (config.imageLoaded) drawPix()
-    //   m = p5Instance.millis();
-    // }
+    if (!config.paused) {
+      if (config.imageLoaded) drawPix()
+    }
   }
 
   p5Instance.draw = draw
@@ -75,16 +74,14 @@ export default function sketch ({ p5Instance, textManager }) {
 
   const drawPix = () => {
     const newOffset = getOffset(currentOffset)
-    pixelateImageUpperLeft({ gridSize, cellSize, offset: newOffset })
+    pixelateImage({ gridSize, cellSize: config.cellSize, offset: newOffset })
     currentOffset = newOffset
   }
 
   // there's an issue where the right-hand strip comes and goes
   // it's an average problem. probably "correct"
   // but I don't like how it looks in a sequence
-  const pixelateImageUpperLeft = ({ gridSize, cellSize, offset }) => {
-    p5Instance.textAlign(p5Instance.CENTER, p5Instance.CENTER)
-
+  const pixelateImage = ({ gridSize, cellSize, offset }) => {
     for (var y = 0; y <= gridSize.y; y++) {
       for (var x = 0; x <= gridSize.x; x++) {
         p5Instance.fill(getColor(x, y, offset))
