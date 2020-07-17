@@ -5,20 +5,15 @@ import TextManager from './TextManager'
 
 const theStuff = () => {
   const gf = new GiphyFetch(process.env.GIPHY_API_KEY)
-  let gifs = []
 
-  // fetch 10 gifs
   gf.trending({ limit: 10 })
-    .then(resp => {
-      console.log(resp)
-      gifs = resp.data
-      // var gif = new p5Gif.Gif(resp.data[0].url);
+    .then(_ => {
       new P5(builder) // eslint-disable-line no-new
     })
 
   const builder = (p5Instance) => {
     const textManager = new TextManager()
-    sketch({ p5Instance, gifs, textManager })
+    sketch({ p5Instance, textManager })
   }
 }
 

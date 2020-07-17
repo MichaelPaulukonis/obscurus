@@ -14,13 +14,27 @@ let img = null
 export default function sketch ({ p5Instance, textManager }) {
   const width = 500
   const height = 500
+  const cellSize = 30
+  const gridSize = {
+    x: Math.floor(width / cellSize),
+    y: Math.floor(height / cellSize)
+  }
+
+  const initialOffset = () => ({
+    x: Math.floor(p5Instance.random(img.width - gridSize.x)),
+    y: Math.floor(p5Instance.random(img.height - gridSize.y))
+  })
+
+  let currentOffset = {}
+  let vectorX = { direction: 1, speed: 2 }
+  let vectorY = { direction: 1, speed: 1 }
 
   p5Instance.setup = () => {
-    p5Instance.frameRate(0.5)
+    p5Instance.frameRate(10)
     p5Instance.noStroke()
     p5Instance.textSize(16)
     p5Instance.createCanvas(width, height)
-    p5Instance.noLoop()
+    // p5Instance.noLoop()
     setImage('./assets/images/fire.01.jpeg')
     draw()
   }
@@ -36,8 +50,11 @@ export default function sketch ({ p5Instance, textManager }) {
     // }
   }
 
+  p5Instance.draw = draw
+
   const imageReady = () => {
     img.loadPixels()
+    currentOffset = initialOffset()
     config.imageLoaded = true
   }
 
@@ -46,16 +63,20 @@ export default function sketch ({ p5Instance, textManager }) {
     img = p5Instance.loadImage(filename, imageReady)
   }
 
+  // TODO:: encapsulate the vectors
+  const getOffset = (previousOffset) => {
+    let nextOffset = { x: previousOffset.x + vectorX.direction * vectorX.speed, y: previousOffset.y + vectorY.direction * vectorY.speed }
+    vectorX.direction = (nextOffset.x >= img.width - gridSize.x || nextOffset.x <= 0) ? -vectorX.direction : vectorX.direction
+    vectorY.direction = (nextOffset.y >= img.height - gridSize.y || nextOffset.y <= 0) ? -vectorY.direction : vectorY.direction
+
+    return nextOffset
+  }
+
+
   const drawPix = () => {
-    const cellSize = 30
-    const gridSize = {
-      x: Math.floor(width / cellSize),
-      y: Math.floor(height / cellSize)
-    }
-    // the above ARE constants for the life of the canvas/backing image
-    // but on each subsequent draw the offset will change
-    const offset = { x: p5Instance.random(img.width - gridSize.x), y: p5Instance.random(img.height - gridSize.y) }
-    pixelateImageUpperLeft({ gridSize, cellSize, offset })
+    const newOffset = getOffset(currentOffset)
+    pixelateImageUpperLeft({ gridSize, cellSize, offset: newOffset })
+    currentOffset = newOffset
   }
 
   // there's an issue where the right-hand strip comes and goes
