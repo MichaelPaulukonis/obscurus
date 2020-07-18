@@ -5,14 +5,12 @@ const config = {
   frameRate: 10,
   textSize: 16,
   paused: false,
-  imageLoaded: false
+  imageLoaded: false,
+  textProvider: null
 }
 let img = null
 
 export default function sketch ({ p5Instance, textManager }) {
-  // const config.width = 500
-  // const config.height = 500
-  // const config.cellSize = 30
   const gridSize = {
     x: Math.floor(config.width / config.cellSize),
     y: Math.floor(config.height / config.cellSize)
@@ -32,7 +30,7 @@ export default function sketch ({ p5Instance, textManager }) {
     p5Instance.noStroke()
     p5Instance.textSize(config.textSize)
     p5Instance.textAlign(p5Instance.CENTER, p5Instance.CENTER)
-
+    config.textProvider = textGetter(gridSize)
     p5Instance.createCanvas(config.width, config.height)
     // p5Instance.noLoop()
     setImage('./assets/images/fire.01.jpeg')
@@ -45,7 +43,7 @@ export default function sketch ({ p5Instance, textManager }) {
 
   const draw = () => {
     if (!config.paused) {
-      if (config.imageLoaded) drawPix()
+      if (config.imageLoaded) drawPix(config.textProvider)
     }
   }
 
@@ -71,24 +69,30 @@ export default function sketch ({ p5Instance, textManager }) {
     return nextOffset
   }
 
-
-  const drawPix = () => {
+  const drawPix = (text) => {
     const newOffset = getOffset(currentOffset)
-    pixelateImage({ gridSize, cellSize: config.cellSize, offset: newOffset })
+    pixelateImage({ gridSize, cellSize: config.cellSize, offset: newOffset, getchar: text })
     currentOffset = newOffset
   }
 
-  // there's an issue where the right-hand strip comes and goes
-  // it's an average problem. probably "correct"
-  // but I don't like how it looks in a sequence
-  const pixelateImage = ({ gridSize, cellSize, offset }) => {
-    for (var y = 0; y <= gridSize.y; y++) {
-      for (var x = 0; x <= gridSize.x; x++) {
+  const textGetter = (gridSize) => {
+    const bloc = new Array(gridSize.x * gridSize.y).fill('').map(textManager.getchar)
+    let index = -1
+    return function * () {
+      index = (index + 1) % bloc.length
+      yield bloc[index]
+      // I couldn't get statements AFTER yield to execute ?????
+      /// maybe because I'm not using a 'done' thing?
+    }
+  }
+
+  const pixelateImage = ({ gridSize, cellSize, offset, getchar }) => {
+    for (var y = 0; y < gridSize.y; y++) {
+      for (var x = 0; x < gridSize.x; x++) {
         p5Instance.fill(getColor(x, y, offset))
         p5Instance.rect(x * cellSize, y * cellSize, cellSize, cellSize)
-        const nextChar = textManager.getchar()
         p5Instance.fill('#000000') // temp color
-        p5Instance.text(nextChar, (x * cellSize) + cellSize / 2, (y * cellSize) + cellSize / 2)
+        p5Instance.text(getchar().next().value, (x * cellSize) + cellSize / 2, (y * cellSize) + cellSize / 2)
       }
     }
   }
