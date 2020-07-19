@@ -6,11 +6,14 @@ const config = {
   textSize: 16,
   paused: false,
   imageLoaded: false,
-  textProvider: null
+  textProvider: null,
+  corpus: []
 }
 let img = null
 
-export default function sketch ({ p5Instance, textManager }) {
+export default function sketch ({ p5Instance, textManager, corpus }) {
+  config.corpus = corpus
+
   const gridSize = {
     x: Math.floor(config.width / config.cellSize),
     y: Math.floor(config.height / config.cellSize)
@@ -30,6 +33,7 @@ export default function sketch ({ p5Instance, textManager }) {
     p5Instance.noStroke()
     p5Instance.textSize(config.textSize)
     p5Instance.textAlign(p5Instance.CENTER, p5Instance.CENTER)
+    textManager.setText(p5Instance.random(corpus))
     config.textProvider = textGetter(gridSize)
     p5Instance.createCanvas(config.width, config.height)
     // p5Instance.noLoop()
@@ -44,6 +48,9 @@ export default function sketch ({ p5Instance, textManager }) {
   const draw = () => {
     if (!config.paused) {
       if (config.imageLoaded) drawPix(config.textProvider)
+      if (p5Instance.frameCount % 10 === 0) {
+        config.textProvider = textGetter(gridSize)
+      }
     }
   }
 
