@@ -36,13 +36,20 @@ export default function sketch ({ p5Instance, textManager, corpus }) {
     textManager.setText(p5Instance.random(corpus))
     config.textProvider = textGetter(gridSize)
     p5Instance.createCanvas(config.width, config.height)
-    // p5Instance.noLoop()
     setImage('./assets/images/fire.01.jpeg')
     draw()
   }
 
   p5Instance.mouseClicked = () => {
     draw()
+  }
+
+  p5Instance.keyTyped = () => {
+    const key = p5Instance.key
+
+    if (key === ' ') {
+      config.paused = !config.paused
+    }
   }
 
   const draw = () => {
