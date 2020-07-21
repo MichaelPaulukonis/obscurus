@@ -1,15 +1,40 @@
+// import { NoEmitOnErrorsPlugin } from "webpack"
+
 const config = {
   cellSize: 30,
   width: 500,
   height: 500,
-  frameRate: 10,
+  frameRate: 2,
   textSize: 16,
   paused: false,
   imageLoaded: false,
   textProvider: null,
   corpus: []
 }
+
 let img = null
+
+const rgbs = {
+  black: { red: 0, green: 0, blue: 0 },
+  white: { red: 255, green: 255, blue: 255 }
+}
+
+const noise = {
+  red: 10000,
+  blue: 20000,
+  green: 30000
+}
+
+const noiseIncrementer = (i) => (n) => () => {
+  n = { red: n.red + i.red, blue: n.blue + i.blue, green: n.green + i.green }
+  return n
+}
+
+const startInc = {
+  red: 0.3,
+  blue: 0.3,
+  green: 0.2
+}
 
 export default function sketch ({ p5Instance, textManager, corpus }) {
   config.corpus = corpus
@@ -28,6 +53,8 @@ export default function sketch ({ p5Instance, textManager, corpus }) {
   let vectorX = { direction: 1, speed: 2 }
   let vectorY = { direction: 1, speed: 1 }
 
+  let incrementNoise = noiseIncrementer(startInc)(noise)
+
   p5Instance.setup = () => {
     p5Instance.frameRate(config.frameRate)
     p5Instance.noStroke()
@@ -36,7 +63,9 @@ export default function sketch ({ p5Instance, textManager, corpus }) {
     textManager.setText(p5Instance.random(corpus))
     config.textProvider = textGetter(gridSize)
     p5Instance.createCanvas(config.width, config.height)
-    setImage('./assets/images/fire.01.jpeg')
+    // setImage('./assets/images/fire.01.jpeg')
+    setImage('./assets/images/stock.stripes.jpeg')
+
     draw()
   }
 
@@ -47,17 +76,27 @@ export default function sketch ({ p5Instance, textManager, corpus }) {
   p5Instance.keyTyped = () => {
     const key = p5Instance.key
 
-    if (key === ' ') {
-      config.paused = !config.paused
+    switch (key) {
+      case ' ':
+        config.paused = !config.paused
+        break;
+
+      case 'n':
+        coreDraw()
+        break
     }
   }
 
   const draw = () => {
-    if (!config.paused) {
-      if (config.imageLoaded) drawPix(config.textProvider)
-      if (p5Instance.frameCount % 10 === 0) {
-        config.textProvider = textGetter(gridSize)
-      }
+    if (!config.paused && config.imageLoaded) {
+      coreDraw()
+    }
+  }
+
+  const coreDraw = () => {
+    drawPix(config.textProvider)
+    if (p5Instance.frameCount % 10 === 0) {
+      config.textProvider = textGetter(gridSize)
     }
   }
 
@@ -92,7 +131,7 @@ export default function sketch ({ p5Instance, textManager, corpus }) {
   const textGetter = (gridSize) => {
     const bloc = new Array(gridSize.x * gridSize.y).fill('').map(textManager.getchar)
     let index = -1
-    return function * () {
+    return function* () {
       index = (index + 1) % bloc.length
       yield bloc[index]
       // I couldn't get statements AFTER yield to execute ?????
@@ -103,18 +142,49 @@ export default function sketch ({ p5Instance, textManager, corpus }) {
   const pixelateImage = ({ gridSize, cellSize, offset, getchar }) => {
     for (var y = 0; y < gridSize.y; y++) {
       for (var x = 0; x < gridSize.x; x++) {
-        p5Instance.fill(getColor(x, y, offset))
+        // const cellColor = getImageRGB(x, y, offset)
+        const n = incrementNoise()
+        const cellColor = {
+          red: p5Instance.noise(n.red) * 255,
+          blue: p5Instance.noise(n.blue) * 255,
+          green: p5Instance.noise(n.green) * 255
+        }
+
+        const stark = worb(cellColor)
+
+        // p5Instance.fill(p5Instance.color(cellColor.red, cellColor.blue, cellColor.green))
+        p5Instance.fill(p5Instance.color(stark.red, stark.blue, stark.green))
+
         p5Instance.rect(x * cellSize, y * cellSize, cellSize, cellSize)
-        p5Instance.fill('#000000') // temp color
+        // const textColor = invertColor(cellColor)
+        // const textColor = invertColor(stark)
+        // p5Instance.fill(p5Instance.color(textColor.red, textColor.blue, textColor.green))
+        p5Instance.fill('black')
         p5Instance.text(getchar().next().value, (x * cellSize) + cellSize / 2, (y * cellSize) + cellSize / 2)
       }
     }
   }
 
+  // based on https://gomakethings.com/dynamically-changing-the-text-color-based-on-background-color-contrast-with-vanilla-js/
+  const getYIQ = ({ red, green, blue }) => {
+    var yiq = ((red * 299) + (green * 587) + (blue * 114)) / 1000;
+    return yiq
+  }
+
+  const yiqBool = yiq => yiq >= 128
+
+  const worb = (rgb) => yiqBool(getYIQ(rgb)) ? rgbs.white : rgbs.black
+
+  const invertColor = ({ red, green, blue }) => {
+    return { red: 255 - red, green: 255 - green, blue: 255 - blue }
+  }
+
+
+
   // average code based on http://stackoverflow.com/a/12408627/41153
   // this is likely to fail if xLoc,yLoc is with pixSize of width,height
   // but works for what I'm currently doing....
-  const getColor = (xLoc, yLoc, offset) => {
+  const getImageRGB = (xLoc, yLoc, offset) => {
     // if (yLoc < 0) { yLoc = 0 }
     // if (xLoc < 0) { xLoc = 0 }
     // let r = 0, b = 0, g = 0;
@@ -133,6 +203,6 @@ export default function sketch ({ p5Instance, textManager, corpus }) {
     // return averageColor;
 
     var pix = img.drawingContext.getImageData(xLoc + offset.x, yLoc + offset.y, 1, 1).data
-    return p5Instance.color(pix[0], pix[1], pix[2])
+    return { red: pix[0], green: pix[1], blue: pix[2] }
   }
 }
