@@ -31,9 +31,22 @@ const noiseIncrementer = (i) => (n) => () => {
 }
 
 const startInc = {
-  red: 0.3,
-  blue: 0.3,
-  green: 0.2
+  red: 0.1,
+  blue: 0.1,
+  green: 0.1
+}
+
+const xyVectors = {
+  x: 0,
+  xVec: 0.1,
+  y: 0,
+  yVec: 0.1
+}
+
+const xyIncrementor = (i) => () => {
+  i.x += i.xVec
+  i.y += i.yVec
+  return { x: i.x, y: i.y }
 }
 
 export default function sketch ({ p5Instance, textManager, corpus }) {
@@ -54,6 +67,7 @@ export default function sketch ({ p5Instance, textManager, corpus }) {
   let vectorY = { direction: 1, speed: 1 }
 
   let incrementNoise = noiseIncrementer(startInc)(noise)
+  let increment = xyIncrementor(xyVectors)
 
   p5Instance.setup = () => {
     p5Instance.frameRate(config.frameRate)
@@ -94,7 +108,8 @@ export default function sketch ({ p5Instance, textManager, corpus }) {
   }
 
   const coreDraw = () => {
-    drawPix(config.textProvider)
+    const vec = increment()
+    drawPix(config.textProvider, vec)
     if (p5Instance.frameCount % 10 === 0) {
       config.textProvider = textGetter(gridSize)
     }
@@ -122,9 +137,9 @@ export default function sketch ({ p5Instance, textManager, corpus }) {
     return nextOffset
   }
 
-  const drawPix = (text) => {
+  const drawPix = (text, vec) => {
     const newOffset = getOffset(currentOffset)
-    pixelateImage({ gridSize, cellSize: config.cellSize, offset: newOffset, getchar: text })
+    pixelateImage({ gridSize, cellSize: config.cellSize, offset: newOffset, getchar: text, vec })
     currentOffset = newOffset
   }
 
@@ -139,26 +154,22 @@ export default function sketch ({ p5Instance, textManager, corpus }) {
     }
   }
 
-  const pixelateImage = ({ gridSize, cellSize, offset, getchar }) => {
+  const pixelateImage = ({ gridSize, cellSize, offset, getchar, vec }) => {
     for (var y = 0; y < gridSize.y; y++) {
       for (var x = 0; x < gridSize.x; x++) {
-        // const cellColor = getImageRGB(x, y, offset)
-        const n = incrementNoise()
-        const cellColor = {
-          red: p5Instance.noise(n.red) * 255,
-          blue: p5Instance.noise(n.blue) * 255,
-          green: p5Instance.noise(n.green) * 255
-        }
+        // const n = incrementNoise()
+        // const cellColor = {
+        //   red: p5Instance.noise(n.red) * 255,
+        //   blue: p5Instance.noise(n.blue) * 255,
+        //   green: p5Instance.noise(n.green) * 255
+        // }
+        // const stark = worb(cellColor)
+        // p5Instance.fill(p5Instance.color(stark.red, stark.blue, stark.green))
 
-        const stark = worb(cellColor)
-
-        // p5Instance.fill(p5Instance.color(cellColor.red, cellColor.blue, cellColor.green))
-        p5Instance.fill(p5Instance.color(stark.red, stark.blue, stark.green))
+        const background = (255 * p5Instance.noise(vec.x * x, vec.y * y)) >= 128  ? 'white' : 'black'
+        p5Instance.fill(background)
 
         p5Instance.rect(x * cellSize, y * cellSize, cellSize, cellSize)
-        // const textColor = invertColor(cellColor)
-        // const textColor = invertColor(stark)
-        // p5Instance.fill(p5Instance.color(textColor.red, textColor.blue, textColor.green))
         p5Instance.fill('black')
         p5Instance.text(getchar().next().value, (x * cellSize) + cellSize / 2, (y * cellSize) + cellSize / 2)
       }
