@@ -12,8 +12,8 @@
   },
   "dependencies": {
     "@babel/polyfill": "^7.10.4",
-    "@giphy/js-fetch-api": "^1.6.0",
-    "giphy": "0.0.4",
+    "axios": "^0.19.2",
+    "cheerio": "^1.0.0-rc.3",
     "p5": "^1.0.0",
     "p5.gif": "^1.0.6"
   },
