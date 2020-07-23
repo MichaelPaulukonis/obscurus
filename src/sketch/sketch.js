@@ -55,6 +55,18 @@ export default function sketch ({ p5Instance, textManager, corpus }) {
     draw()
   }
 
+  p5Instance.keyPressed = () => {
+    const keyCode = p5Instance.keyCode
+    let handled = false
+
+    if (keyCode === p5Instance.UP_ARROW || keyCode === p5Instance.DOWN_ARROW) {
+      handled = true
+      config.inflection += 5 * (keyCode === p5Instance.UP_ARROW ? -1 : 1)
+    }
+
+    return handled
+  }
+
   p5Instance.keyTyped = () => {
     const key = p5Instance.key
 
@@ -71,14 +83,6 @@ export default function sketch ({ p5Instance, textManager, corpus }) {
 
       case 't':
         newText({ config, textManager })
-        break
-
-      case '+':
-        config.inflection += 1
-        break
-
-      case '-':
-        config.inflection -= 1
         break
     }
   }
@@ -120,14 +124,19 @@ export default function sketch ({ p5Instance, textManager, corpus }) {
   }
 
   const pixelateImage = ({ gridSize, cellSize, getchar, vec }) => {
+    const yMod = (p5Instance.textAscent() * 1.4)
+
     for (var y = 0; y < gridSize.y; y++) {
       for (var x = 0; x < gridSize.x; x++) {
         const background = (255 * p5Instance.noise(vec.x * x, vec.y * y)) >= config.inflection ? 'white' : 'black'
         p5Instance.fill(background)
-
         p5Instance.rect(x * cellSize, y * cellSize, cellSize, cellSize)
+
         p5Instance.fill('black')
-        p5Instance.text(getchar().next().value, (x * cellSize) + cellSize / 2, (y * cellSize) + cellSize / 2)
+        const t = getchar().next().value
+        const w = p5Instance.textWidth(t)
+        const xMod = (cellSize - w) / 2
+        p5Instance.text(getchar().next().value, (x * cellSize) + xMod, (y * cellSize) + yMod)
       }
     }
   }
