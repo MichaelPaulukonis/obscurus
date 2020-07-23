@@ -4,13 +4,12 @@ import randomPost from './sketch/tumblr-random.js'
 import TextManager from './sketch/TextManager'
 import corpus from './sketch/corpus.default'
 
-const randElem = arr => arr[Math.floor(Math.random() * arr.length)]
 const textManager = new TextManager()
 let newCorpus = []
 
 const theStuff = () => {
     const builder = (p5Instance) => {
-        textManager.randomPost = randomPost
+        textManager.randomPost = randomPost // uh.... if needed
         sketch({ p5Instance, textManager, corpus: newCorpus })
     }
 
