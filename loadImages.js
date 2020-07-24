@@ -1,7 +1,8 @@
 const fs = require('fs')
 
-const loader = (dir = '/assets/images/') => {
+const loader = (dir = './assets/fonts/') => {
   var files = fs.readdirSync(dir)
+  console.log(JSON.stringify(files))
   return files
 }
 

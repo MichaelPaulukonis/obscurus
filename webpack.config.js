@@ -3,8 +3,8 @@ const webpack = require('webpack')
 const Dotenv = require('dotenv-webpack')
 const HtmlWebpackPlugin = require('html-webpack-plugin')
 const CopyWebpackPlugin = require('copy-webpack-plugin')
-const loader = require('./loadImages.js')
-const images = loader('./assets/images')
+// const loader = require('./loadImages.js')
+// const fonts = loader('./assets/fonts')
 
 module.exports = {
   entry: {
@@ -31,14 +31,25 @@ module.exports = {
         loader: 'babel-loader',
         test: /\.js$/,
         exclude: /node_modules/g
+      },
+      {
+        test: /\.(woff(2)?|ttf|eot|svg)(\?v=\d+\.\d+\.\d+)?$/,
+        include: [/fonts/],
+        use: [
+          {
+            loader: 'file-loader',
+            options: {
+              name: 'fonts/[name].[ext]'
+            }
+          }
+        ]
       }
     ]
   },
   plugins: [
     new Dotenv(),
     new webpack.DefinePlugin({
-      VERSION: JSON.stringify(require('./package.json').version),
-      IMAGES: JSON.stringify(images)
+      VERSION: JSON.stringify(require('./package.json').version)
     }),
     new HtmlWebpackPlugin({
       template: path.resolve(__dirname, 'src', 'index.html'),

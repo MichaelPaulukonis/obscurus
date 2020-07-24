@@ -10,13 +10,6 @@ const config = {
   corpus: []
 }
 
-const img = null
-
-const rgbs = {
-  black: { red: 0, green: 0, blue: 0 },
-  white: { red: 255, green: 255, blue: 255 }
-}
-
 const xyVectors = {
   x: 0,
   xVec: 0.1,
@@ -40,13 +33,24 @@ export default function sketch ({ p5Instance, textManager, corpus }) {
 
   const increment = xyIncrementor(xyVectors)
 
+  p5Instance.preload = () => {
+    // p5Instance.loadFont('./assets/fonts/GothamBold.ttf')
+
+    ['GothamBold', 'Helvetica-Bold-Font', 'Interstate-Regular-Font'].forEach((font) => {
+      p5Instance.loadFont(`./assets/fonts/${font}.ttf`)
+    })
+  }
+
   p5Instance.setup = () => {
     p5Instance.frameRate(config.frameRate)
     p5Instance.noStroke()
     p5Instance.textSize(config.textSize)
     p5Instance.textAlign(p5Instance.CENTER, p5Instance.CENTER)
+
     newText({ config, textManager })
     p5Instance.createCanvas(config.width, config.height)
+
+    p5Instance.textFont('Interstate-Regular-Font')
 
     draw()
   }
