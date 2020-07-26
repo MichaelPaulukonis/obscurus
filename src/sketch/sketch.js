@@ -1,3 +1,4 @@
+
 const config = {
   cellSize: 40,
   cells: { x: 15, y: 15 },
@@ -5,10 +6,25 @@ const config = {
   height: 500,
   frameRate: 2,
   textSize: 24,
-  inflection: 128,
+  inflectionVector: {
+    value: 128,
+    heading: 1,
+    speed: 1,
+    max: 200,
+    min: 50
+  },
   paused: false,
   textProvider: null,
-  corpus: []
+  corpus: [],
+  gridOutline: false
+}
+
+const vecUpdater = v => () => {
+  v.value += v.speed * v.heading
+  if (v.value >= v.max || v.value <= v.min) {
+    v.heading = -v.heading
+  }
+  return v
 }
 
 const xyVectors = {
@@ -46,6 +62,8 @@ export default function sketch ({ p5Instance, textManager, corpus }) {
     p5Instance.textAlign(p5Instance.CENTER, p5Instance.CENTER)
     p5Instance.textFont(fonts['Interstate-Regular-Font'])
 
+    config.inflector = vecUpdater(config.inflectionVector)
+
     draw()
   }
 
@@ -56,7 +74,8 @@ export default function sketch ({ p5Instance, textManager, corpus }) {
   p5Instance.keyPressed = () => {
     const keyCode = p5Instance.keyCode
     if (keyCode === p5Instance.UP_ARROW || keyCode === p5Instance.DOWN_ARROW) {
-      config.inflection += 5 * (keyCode === p5Instance.UP_ARROW ? -1 : 1)
+      // TODO: need a function to set bounds
+      config.inflectionVector.value += 5 * (keyCode === p5Instance.UP_ARROW ? -1 : 1)
     }
   }
 
@@ -77,6 +96,14 @@ export default function sketch ({ p5Instance, textManager, corpus }) {
       case 't':
         newText({ config, textManager })
         break
+
+      case 'g': // for dev purposes
+        config.gridOutline = !config.gridOutline
+        if (config.gridOutline) {
+          p5Instance.stroke('black')
+        } else {
+          p5Instance.noStroke()
+        }
     }
   }
 
@@ -102,7 +129,9 @@ export default function sketch ({ p5Instance, textManager, corpus }) {
   p5Instance.draw = draw
 
   const drawPix = (text, vec) => {
-    pixelateImage({ cells: config.cells, cellSize: config.cellSize, getchar: text, vec })
+    const v = config.inflector()
+    console.log(JSON.stringify(v))
+    gridify({ cells: config.cells, cellSize: config.cellSize, getchar: text, vec })
   }
 
   const textGetter = (cells) => {
@@ -116,12 +145,13 @@ export default function sketch ({ p5Instance, textManager, corpus }) {
     }
   }
 
-  const pixelateImage = ({ cells, cellSize, getchar, vec }) => {
-    const yMod = (p5Instance.textAscent() * 1.4)
+  // TODO: vec needs a better name, WHAT vector??? (because I forgot)
+  const gridify = ({ cells, cellSize, getchar, vec }) => {
+    const yMod = (p5Instance.textAscent() * 1.4) // doesn't need to be here (but values are variable with font)
 
     for (var y = 0; y < cells.y; y++) {
       for (var x = 0; x < cells.x; x++) {
-        const background = (255 * p5Instance.noise(vec.x * x, vec.y * y)) >= config.inflection ? 'white' : 'black'
+        const background = (255 * p5Instance.noise(vec.x * x, vec.y * y)) >= config.inflectionVector.value ? 'white' : 'black'
         p5Instance.fill(background)
         p5Instance.rect(x * cellSize, y * cellSize, cellSize, cellSize)
 
