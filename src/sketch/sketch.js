@@ -1,9 +1,10 @@
 const config = {
-  cellSize: 30,
+  cellSize: 40,
+  cells: { x: 15, y: 15 },
   width: 500, // rather these were a functions of the cellsize, so everything fits smoothly
   height: 500,
   frameRate: 2,
-  textSize: 16,
+  textSize: 24,
   inflection: 128,
   paused: false,
   textProvider: null,
@@ -12,9 +13,9 @@ const config = {
 
 const xyVectors = {
   x: 0,
-  xVec: 0.1,
+  xVec: 0.01,
   y: 0,
-  yVec: 0.1
+  yVec: 0.01
 }
 
 const xyIncrementor = (i) => () => {
@@ -26,31 +27,24 @@ const xyIncrementor = (i) => () => {
 export default function sketch ({ p5Instance, textManager, corpus }) {
   config.corpus = corpus
 
-  config.gridSize = {
-    x: Math.floor(config.width / config.cellSize),
-    y: Math.floor(config.height / config.cellSize)
-  }
-
   const increment = xyIncrementor(xyVectors)
+  const fonts = {}
 
   p5Instance.preload = () => {
-    // p5Instance.loadFont('./assets/fonts/GothamBold.ttf')
-
     ['GothamBold', 'Helvetica-Bold-Font', 'Interstate-Regular-Font'].forEach((font) => {
-      p5Instance.loadFont(`./assets/fonts/${font}.ttf`)
+      fonts[font] = p5Instance.loadFont(`./assets/fonts/${font}.ttf`)
     })
   }
 
   p5Instance.setup = () => {
+    console.log('starting!')
+    newText({ config, textManager })
+    p5Instance.createCanvas(config.cellSize * config.cells.x, config.cellSize * config.cells.y)
     p5Instance.frameRate(config.frameRate)
     p5Instance.noStroke()
     p5Instance.textSize(config.textSize)
     p5Instance.textAlign(p5Instance.CENTER, p5Instance.CENTER)
-
-    newText({ config, textManager })
-    p5Instance.createCanvas(config.width, config.height)
-
-    p5Instance.textFont('Interstate-Regular-Font')
+    p5Instance.textFont(fonts['Interstate-Regular-Font'])
 
     draw()
   }
@@ -61,14 +55,9 @@ export default function sketch ({ p5Instance, textManager, corpus }) {
 
   p5Instance.keyPressed = () => {
     const keyCode = p5Instance.keyCode
-    let handled = false
-
     if (keyCode === p5Instance.UP_ARROW || keyCode === p5Instance.DOWN_ARROW) {
-      handled = true
       config.inflection += 5 * (keyCode === p5Instance.UP_ARROW ? -1 : 1)
     }
-
-    return handled
   }
 
   p5Instance.keyTyped = () => {
@@ -93,7 +82,7 @@ export default function sketch ({ p5Instance, textManager, corpus }) {
 
   const newText = ({ config, textManager }) => {
     textManager.setText(p5Instance.random(config.corpus))
-    config.textProvider = textGetter(config.gridSize)
+    config.textProvider = textGetter(config.cells)
   }
 
   const draw = () => {
@@ -106,18 +95,18 @@ export default function sketch ({ p5Instance, textManager, corpus }) {
     const vec = increment()
     drawPix(config.textProvider, vec)
     if (p5Instance.frameCount % 10 === 0) {
-      config.textProvider = textGetter(config.gridSize)
+      config.textProvider = textGetter(config.cells)
     }
   }
 
   p5Instance.draw = draw
 
   const drawPix = (text, vec) => {
-    pixelateImage({ gridSize: config.gridSize, cellSize: config.cellSize, getchar: text, vec })
+    pixelateImage({ cells: config.cells, cellSize: config.cellSize, getchar: text, vec })
   }
 
-  const textGetter = (gridSize) => {
-    const bloc = new Array(gridSize.x * gridSize.y).fill('').map(textManager.getchar)
+  const textGetter = (cells) => {
+    const bloc = new Array(cells.x * cells.y).fill('').map(textManager.getchar)
     let index = -1
     return function * () {
       index = (index + 1) % bloc.length
@@ -127,11 +116,11 @@ export default function sketch ({ p5Instance, textManager, corpus }) {
     }
   }
 
-  const pixelateImage = ({ gridSize, cellSize, getchar, vec }) => {
+  const pixelateImage = ({ cells, cellSize, getchar, vec }) => {
     const yMod = (p5Instance.textAscent() * 1.4)
 
-    for (var y = 0; y < gridSize.y; y++) {
-      for (var x = 0; x < gridSize.x; x++) {
+    for (var y = 0; y < cells.y; y++) {
+      for (var x = 0; x < cells.x; x++) {
         const background = (255 * p5Instance.noise(vec.x * x, vec.y * y)) >= config.inflection ? 'white' : 'black'
         p5Instance.fill(background)
         p5Instance.rect(x * cellSize, y * cellSize, cellSize, cellSize)
