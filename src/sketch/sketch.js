@@ -4,7 +4,7 @@ const config = {
   cells: { x: 15, y: 15 },
   width: 500, // rather these were a functions of the cellsize, so everything fits smoothly
   height: 500,
-  frameRate: 2,
+  frameRate: 10,
   textSize: 24,
   inflectionVector: {
     value: 128,
@@ -16,7 +16,9 @@ const config = {
   paused: false,
   textProvider: null,
   corpus: [],
-  gridOutline: false
+  gridOutline: false,
+  xyMod: 0.02,
+  dumbT: 0
 }
 
 const vecUpdater = v => () => {
@@ -53,7 +55,6 @@ export default function sketch ({ p5Instance, textManager, corpus }) {
   }
 
   p5Instance.setup = () => {
-    console.log('starting!')
     newText({ config, textManager })
     p5Instance.createCanvas(config.cellSize * config.cells.x, config.cellSize * config.cells.y)
     p5Instance.frameRate(config.frameRate)
@@ -130,7 +131,6 @@ export default function sketch ({ p5Instance, textManager, corpus }) {
 
   const drawPix = (text, vec) => {
     const v = config.inflector()
-    console.log(JSON.stringify(v))
     gridify({ cells: config.cells, cellSize: config.cellSize, getchar: text, vec })
   }
 
@@ -151,7 +151,9 @@ export default function sketch ({ p5Instance, textManager, corpus }) {
 
     for (var y = 0; y < cells.y; y++) {
       for (var x = 0; x < cells.x; x++) {
-        const background = (255 * p5Instance.noise(vec.x * x, vec.y * y)) >= config.inflectionVector.value ? 'white' : 'black'
+        // const background = (255 * p5Instance.noise(vec.x * x, vec.y * y)) >= config.inflectionVector.value ? 'white' : 'black'
+        const background = (255 * p5Instance.noise(config.xyMod * x * cells.x, config.xyMod * y * cells.y, config.dumbT)) >= 128 ? 'white' : 'black'
+
         p5Instance.fill(background)
         p5Instance.rect(x * cellSize, y * cellSize, cellSize, cellSize)
 
@@ -159,8 +161,9 @@ export default function sketch ({ p5Instance, textManager, corpus }) {
         const t = getchar().next().value
         const w = p5Instance.textWidth(t)
         const xMod = (cellSize - w) / 2
-        p5Instance.text(getchar().next().value, (x * cellSize) + xMod, (y * cellSize) + yMod)
+        p5Instance.text(t, (x * cellSize) + xMod, (y * cellSize) + yMod)
       }
     }
+    config.dumbT = config.dumbT + config.xyMod
   }
 }
