@@ -32,6 +32,15 @@ export default class TextManager {
       charIndex = 0
     }
 
+    self.windowMaker = (width) => (startIndex) => {
+      const bloc = []
+      for (let i = 0; i < width; i++) {
+        const index = (startIndex + i) % self.w.length
+        bloc[i] = self.w[index]
+      }
+      return bloc.join('')
+    }
+
     self.setText(text || defaultText)
   }
 }

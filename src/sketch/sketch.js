@@ -18,7 +18,8 @@ const config = {
   corpus: [],
   gridOutline: false,
   xyMod: 0.02,
-  dumbT: 0
+  dumbT: 0,
+  textFrame: 0
 }
 
 const vecUpdater = v => () => {
@@ -121,7 +122,8 @@ export default function sketch ({ p5Instance, textManager, corpus }) {
 
   const newText = ({ config, textManager }) => {
     textManager.setText(p5Instance.random(config.corpus))
-    config.textProvider = textGetter(config.cells)
+    // config.textProvider = textGetter(config.cells)
+    config.textProvider = windowFactory(config.cells)
   }
 
   const draw = () => {
@@ -131,10 +133,12 @@ export default function sketch ({ p5Instance, textManager, corpus }) {
   }
 
   const coreDraw = () => {
+    config.textFrame += 1
     const vec = increment()
-    drawPix(config.textProvider, vec)
-    if (p5Instance.frameCount % 10 === 0) {
-      config.textProvider = textGetter(config.cells)
+    drawPix(config.textProvider(config.textFrame), vec)
+    if (config.textFrame % 10 === 0) {
+      // config.textProvider = textGetter(config.cells)
+      config.textProvider = windowFactory(config.cells)
     }
   }
 
@@ -147,6 +151,17 @@ export default function sketch ({ p5Instance, textManager, corpus }) {
 
   const textGetter = (cells) => {
     const bloc = new Array(cells.x * cells.y).fill('').map(textManager.getchar)
+    let index = -1
+    return function * () {
+      index = (index + 1) % bloc.length
+      yield bloc[index]
+      // I couldn't get statements AFTER yield to execute ?????
+      /// maybe because I'm not using a 'done' thing?
+    }
+  }
+
+  const windowFactory = (cells) => (startIndex) => {
+    const bloc = textManager.windowMaker(cells.x * cells.x)(startIndex)
     let index = -1
     return function * () {
       index = (index + 1) % bloc.length
