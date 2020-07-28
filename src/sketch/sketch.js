@@ -47,6 +47,7 @@ export default function sketch ({ p5Instance, textManager, corpus }) {
 
   const increment = xyIncrementor(xyVectors)
   const fonts = {}
+  let slider = []
 
   p5Instance.preload = () => {
     ['GothamBold', 'Helvetica-Bold-Font', 'Interstate-Regular-Font'].forEach((font) => {
@@ -54,9 +55,19 @@ export default function sketch ({ p5Instance, textManager, corpus }) {
     })
   }
 
+  // crude, but works
+  const updateSlider = () => {
+    config.xyMod = slider.value()
+  }
+
   p5Instance.setup = () => {
     newText({ config, textManager })
     p5Instance.createCanvas(config.cellSize * config.cells.x, config.cellSize * config.cells.y)
+
+    slider = p5Instance.createSlider(0.0005, 0.06, config.xyMod, 0.0001)
+    slider.position(20, 20)
+    slider.input(updateSlider)
+
     p5Instance.frameRate(config.frameRate)
     p5Instance.noStroke()
     p5Instance.textSize(config.textSize)
