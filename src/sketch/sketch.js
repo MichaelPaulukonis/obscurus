@@ -145,19 +145,9 @@ export default function sketch ({ p5Instance, textManager, corpus }) {
   p5Instance.draw = draw
 
   const drawPix = (text, vec) => {
-    const v = config.inflector()
-    gridify({ cells: config.cells, cellSize: config.cellSize, getchar: text, vec })
-  }
-
-  const textGetter = (cells) => {
-    const bloc = new Array(cells.x * cells.y).fill('').map(textManager.getchar)
-    let index = -1
-    return function * () {
-      index = (index + 1) % bloc.length
-      yield bloc[index]
-      // I couldn't get statements AFTER yield to execute ?????
-      /// maybe because I'm not using a 'done' thing?
-    }
+    const blockCells = buildGridCells({ cells: config.cells, cellSize: config.cellSize })
+    const textCells = buildTextCells({ cells: config.cells, cellSize: config.cellSize, getchar: text })
+    paintGridsNew({ textCells, blockCells })
   }
 
   const windowFactory = (cells) => (startIndex) => {
@@ -171,25 +161,48 @@ export default function sketch ({ p5Instance, textManager, corpus }) {
     }
   }
 
-  // TODO: vec needs a better name, WHAT vector??? (because I forgot)
-  const gridify = ({ cells, cellSize, getchar, vec }) => {
-    const yMod = (p5Instance.textAscent() * 1.4) // doesn't need to be here (but values are variable with font)
-
+  const buildGridCells = ({ cells, cellSize }) => {
+    const bwGrid = []
     for (var y = 0; y < cells.y; y++) {
       for (var x = 0; x < cells.x; x++) {
-        // const background = (255 * p5Instance.noise(vec.x * x, vec.y * y)) >= config.inflectionVector.value ? 'white' : 'black'
-        const background = (255 * p5Instance.noise(config.xyMod * x * cells.x, config.xyMod * y * cells.y, config.dumbT)) >= 128 ? 'white' : 'black'
-
-        p5Instance.fill(background)
-        p5Instance.rect(x * cellSize, y * cellSize, cellSize, cellSize)
-
-        p5Instance.fill('black')
-        const t = getchar().next().value
-        const w = p5Instance.textWidth(t)
-        const xMod = (cellSize - w) / 2
-        p5Instance.text(t, (x * cellSize) + xMod, (y * cellSize) + yMod)
+        const triDnoise = (255 * p5Instance.noise(config.xyMod * x * cells.x, config.xyMod * y * cells.y, config.dumbT))
+        const background = triDnoise >= 128 ? 'white' : 'black'
+        bwGrid.push({
+          background,
+          x: x * cellSize,
+          y: y * cellSize,
+          cellSize
+        })
       }
     }
     config.dumbT = config.dumbT + config.xyMod
+    return bwGrid
+  }
+
+  const buildTextCells = ({ cells, cellSize, getchar }) => {
+    const yMod = (p5Instance.textAscent() * 1.4) // doesn't need to be here (but values are variable with font)
+    const textGrid = []
+    for (var y = 0; y < cells.y; y++) {
+      for (var x = 0; x < cells.x; x++) {
+        const t = getchar().next().value
+        const w = p5Instance.textWidth(t)
+        const xMod = (cellSize - w) / 2
+        textGrid.push({
+          text: t,
+          x: (x * cellSize) + xMod,
+          y: (y * cellSize) + yMod
+        })
+      }
+    }
+    return textGrid
+  }
+
+  const paintGridsNew = ({ textCells, blockCells }) => {
+    blockCells.forEach(cell => {
+      p5Instance.fill(cell.background)
+      p5Instance.rect(cell.x, cell.y, cell.cellSize, cell.cellSize)
+    })
+    p5Instance.fill('black')
+    textCells.forEach(cell => p5Instance.text(cell.text, cell.x, cell.y))
   }
 }
