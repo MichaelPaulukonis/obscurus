@@ -6,13 +6,8 @@ const config = {
   height: 500,
   frameRate: 30,
   textSize: 24,
-  inflectionVector: {
-    value: 128,
-    heading: 1,
-    speed: 1,
-    max: 200,
-    min: 50
-  },
+  inflectionVector: {},
+  xyModVector: {},
   paused: false,
   textProvider: null,
   corpus: [],
@@ -23,34 +18,26 @@ const config = {
   textFrame: 0,
   colorFrameRate: 20,
   textFrameRate: 12,
-  displayGui: true
+  displayGui: true,
+  textReset: false
 }
 
-const vecUpdater = v => () => {
-  v.value += v.speed * v.heading
-  if (v.value >= v.max || v.value <= v.min) {
-    v.heading = -v.heading
+const vector = ({ value, direction, speed, min, max }) => {
+  const self = { value, direction, speed, min, max }
+  self.update = () => {
+    let newValue = self.value + (self.speed * self.direction)
+    if (newValue >= self.max || newValue <= self.min) {
+      self.direction = -self.direction
+      newValue = Math.max(Math.min(newValue, self.max), self.min)
+    }
+    self.value = newValue
   }
-  return v
-}
-
-const xyVectors = {
-  x: 0,
-  xVec: 0.01,
-  y: 0,
-  yVec: 0.01
-}
-
-const xyIncrementor = (i) => () => {
-  i.x += i.xVec
-  i.y += i.yVec
-  return { x: i.x, y: i.y }
+  return self
 }
 
 export default function sketch ({ p5Instance, textManager, corpus }) {
   config.corpus = corpus
 
-  const increment = xyIncrementor(xyVectors)
   const fonts = {}
 
   p5Instance.preload = () => {
@@ -115,7 +102,20 @@ export default function sketch ({ p5Instance, textManager, corpus }) {
     p5Instance.textAlign(p5Instance.CENTER, p5Instance.CENTER)
     p5Instance.textFont(fonts['Interstate-Regular-Font'])
 
-    config.inflector = vecUpdater(config.inflectionVector)
+    config.xyModVector = vector({
+      value: 0.02,
+      direction: 1,
+      speed: 0.0001,
+      min: 0.001,
+      max: 0.06
+    })
+    config.inflectionVector = vector({
+      value: 128,
+      direction: -1,
+      speed: 0.3,
+      min: 60,
+      max: 190
+    })
 
     setupGui()
 
@@ -170,6 +170,7 @@ export default function sketch ({ p5Instance, textManager, corpus }) {
   const newText = ({ config, textManager }) => {
     textManager.setText(p5Instance.random(config.corpus))
     config.textProvider = windowFactory(config.cells)
+    config.textReset = true
   }
 
   const draw = () => {
@@ -184,10 +185,12 @@ export default function sketch ({ p5Instance, textManager, corpus }) {
     config.frame += 1
     // const vec = increment()
     if (blockCells.length === 0 || config.frame % config.colorFrameRate === 0) {
+      config.xyModVector.update()
+      config.inflectionVector.update()
       blockCells = buildGridCells({ cells: config.cells, cellSize: config.cellSize })
     }
-    if (textCells.length === 0 || config.frame % config.textFrameRate === 0) {
-      // aaaaarg, wrong value, now!!!
+    if (config.textReset || textCells.length === 0 || config.frame % config.textFrameRate === 0) {
+      config.textReset = false
       textCells = buildTextCells({ cells: config.cells, cellSize: config.cellSize, getchar: config.textProvider(config.textFrame) })
       config.textFrame += 1
     }
@@ -217,7 +220,7 @@ export default function sketch ({ p5Instance, textManager, corpus }) {
     const bwGrid = []
     for (var y = 0; y < cells.y; y++) {
       for (var x = 0; x < cells.x; x++) {
-        const triDnoise = (255 * p5Instance.noise(config.xyMod * x * cells.x, config.xyMod * y * cells.y, config.dumbT))
+        const triDnoise = (255 * p5Instance.noise(config.xyModVector.value * x * cells.x, config.xyModVector.value * y * cells.y, config.dumbT))
         const background = triDnoise >= config.inflectionVector.value ? 'white' : 'black'
         bwGrid.push({
           background,
@@ -227,7 +230,7 @@ export default function sketch ({ p5Instance, textManager, corpus }) {
         })
       }
     }
-    config.dumbT = config.dumbT + config.xyMod
+    config.dumbT = config.dumbT + config.xyModVector.value
     return bwGrid
   }
 
