@@ -22,7 +22,8 @@ const config = {
   frame: 0,
   textFrame: 0,
   colorFrameRate: 20,
-  textFrameRate: 12
+  textFrameRate: 12,
+  displayGui: true
 }
 
 const vecUpdater = v => () => {
@@ -58,12 +59,19 @@ export default function sketch ({ p5Instance, textManager, corpus }) {
     })
   }
 
+  let guiControls = []
+  let controls = {}
+
+  const displayControls = (controls) => (show) => {
+    // this.elt.style.display = 'block';
+    const func = show ? 'show' : 'hide'
+    controls.forEach(c => c[func]())
+  }
+  let showHideGui
+
   const sliderUpdater = slider => configSetting => () => { config[configSetting] = slider.value() }
 
-  p5Instance.setup = () => {
-    newText({ config, textManager })
-    p5Instance.createCanvas(config.cellSize * config.cells.x, config.cellSize * config.cells.y)
-
+  const setupGui = () => {
     const xymodSlider = p5Instance.createSlider(0.0005, 0.06, config.xyMod, 0.0001)
     xymodSlider.position(20, 20)
     xymodSlider.input(sliderUpdater(xymodSlider)('xyMod'))
@@ -80,6 +88,27 @@ export default function sketch ({ p5Instance, textManager, corpus }) {
     inflectionPointSlider.position(20, 80)
     inflectionPointSlider.input(() => { config.inflectionVector.value = inflectionPointSlider.value() })
 
+    p5Instance.text('xymod', xymodSlider.x + 2 * xymodSlider.width, xymodSlider.y)
+
+    guiControls = [xymodSlider, colorFrameSlider, textFrameSlider, inflectionPointSlider]
+    controls = { xymodSlider, colorFrameSlider, textFrameSlider, inflectionPointSlider }
+    showHideGui = displayControls(guiControls)
+  }
+
+  const updateGuiLabels = (controls) => {
+    p5Instance.fill('#000')
+    p5Instance.stroke('#fff')
+    p5Instance.textAlign(p5Instance.LEFT)
+
+    Object.keys(controls).forEach(name => {
+      p5Instance.text(name, controls[name].x + controls[name].width + 10, controls[name].y)
+    })
+  }
+
+  p5Instance.setup = () => {
+    newText({ config, textManager })
+    p5Instance.createCanvas(config.cellSize * config.cells.x, config.cellSize * config.cells.y)
+
     p5Instance.frameRate(config.frameRate)
     p5Instance.noStroke()
     p5Instance.textSize(config.textSize)
@@ -87,6 +116,8 @@ export default function sketch ({ p5Instance, textManager, corpus }) {
     p5Instance.textFont(fonts['Interstate-Regular-Font'])
 
     config.inflector = vecUpdater(config.inflectionVector)
+
+    setupGui()
 
     draw()
   }
@@ -121,7 +152,12 @@ export default function sketch ({ p5Instance, textManager, corpus }) {
         newText({ config, textManager })
         break
 
-      case 'g': // for dev purposes
+      case 'g':
+        config.displayGui = !config.displayGui
+        showHideGui(config.displayGui)
+        break
+
+      case 'o': // for dev purposes
         config.gridOutline = !config.gridOutline
         if (config.gridOutline) {
           p5Instance.stroke('black')
@@ -161,6 +197,7 @@ export default function sketch ({ p5Instance, textManager, corpus }) {
     // }
 
     paintGridsNew({ textCells, blockCells })
+    if (config.displayGui) updateGuiLabels(controls)
   }
 
   p5Instance.draw = draw
@@ -213,6 +250,9 @@ export default function sketch ({ p5Instance, textManager, corpus }) {
   }
 
   const paintGridsNew = ({ textCells, blockCells }) => {
+    p5Instance.noStroke()
+    p5Instance.textAlign(p5Instance.CENTER, p5Instance.CENTER)
+
     blockCells.forEach(cell => {
       p5Instance.fill(cell.background)
       p5Instance.rect(cell.x, cell.y, cell.cellSize, cell.cellSize)
