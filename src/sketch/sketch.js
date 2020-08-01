@@ -1,3 +1,4 @@
+import CCapture from 'ccapture.js'
 
 const config = {
   cellSize: 30,
@@ -18,7 +19,9 @@ const config = {
   colorFrameRate: 10,
   textFrameRate: 200,
   displayGui: false,
-  textReset: false
+  textReset: false,
+  noiseSeed: null,
+  capturing: false
 }
 
 const vector = ({ value, direction, speed, min, max }) => {
@@ -38,6 +41,7 @@ export default function sketch ({ p5Instance, textManager, corpus }) {
   config.corpus = corpus
 
   const fonts = {}
+  const capturer = new CCapture({ format: 'png', framerate: config.p5frameRate })
 
   p5Instance.preload = () => {
     ['GothamBold', 'Helvetica-Bold-Font', 'Interstate-Regular-Font'].forEach((font) => {
@@ -88,6 +92,9 @@ export default function sketch ({ p5Instance, textManager, corpus }) {
   }
 
   p5Instance.setup = () => {
+    if (config.noiseSeed) {
+      p5Instance.noiseSeed(config.noiseSeed)
+    }
     newText({ config, textManager })
     p5Instance.createCanvas(config.cellSize * config.cells.x, config.cellSize * config.cells.y)
 
@@ -151,6 +158,16 @@ export default function sketch ({ p5Instance, textManager, corpus }) {
         }
         break
 
+      case 's':
+        if (config.capturing) {
+          capturer.stop()
+          capturer.save()
+        } else {
+          capturer.start()
+        }
+        config.capturing = !config.capturing
+        break
+
       case 't':
         newText({ config, textManager })
         break
@@ -200,6 +217,7 @@ export default function sketch ({ p5Instance, textManager, corpus }) {
     }
 
     paintGridsNew({ textCells, blockCells })
+    capturer.capture(document.getElementById('defaultCanvas0'))
     if (config.displayGui) updateGuiLabels(controls)
   }
 

@@ -13,6 +13,7 @@
   "dependencies": {
     "@babel/polyfill": "^7.10.4",
     "axios": "^0.19.2",
+    "ccapture.js": "github:aceslowman/ccapture.js#npm-fix",
     "cheerio": "^1.0.0-rc.3",
     "p5": "^1.0.0",
     "p5.gif": "^1.0.6"
