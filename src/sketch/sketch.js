@@ -1,4 +1,5 @@
-import CCapture from 'ccapture.js'
+// import CCapture from 'ccapture.js'
+import vectorMod from './vectorMod'
 
 const config = {
   cellSize: 30,
@@ -9,6 +10,8 @@ const config = {
   p5frameRate: 60,
   inflectionVector: {},
   colorModVector: {},
+  colorFrameMod: {},
+  textFrameMod: {},
   paused: false,
   textProvider: null,
   corpus: [],
@@ -41,7 +44,7 @@ export default function sketch ({ p5Instance, textManager, corpus }) {
   config.corpus = corpus
 
   const fonts = {}
-  const capturer = new CCapture({ format: 'png', framerate: config.p5frameRate })
+  // const capturer = new CCapture({ format: 'png', framerate: config.p5frameRate })
 
   p5Instance.preload = () => {
     ['GothamBold', 'Helvetica-Bold-Font', 'Interstate-Regular-Font'].forEach((font) => {
@@ -59,16 +62,17 @@ export default function sketch ({ p5Instance, textManager, corpus }) {
   }
   let showHideGui
 
-  const sliderUpdater = slider => configSetting => () => { config[configSetting] = slider.value() }
+  const configUpdater = slider => configSetting => () => { config[configSetting] = slider.value() }
+  const sliderUpdater = slider => configSetting => () => { slider.value(config[configSetting]) }
 
   const setupGui = () => {
     const colorFrameSlider = p5Instance.createSlider(1, 1000, config.colorFrameRate, 1)
     colorFrameSlider.position(20, 40)
-    colorFrameSlider.input(sliderUpdater(colorFrameSlider)('colorFrameRate'))
+    colorFrameSlider.input(configUpdater(colorFrameSlider)('colorFrameRate'))
 
     const textFrameSlider = p5Instance.createSlider(1, 1000, config.textFrameRate, 1)
     textFrameSlider.position(20, 60)
-    textFrameSlider.input(sliderUpdater(textFrameSlider)('textFrameRate'))
+    textFrameSlider.input(configUpdater(textFrameSlider)('textFrameRate'))
 
     guiControls = [colorFrameSlider, textFrameSlider]
     controls = { colorFrameSlider, textFrameSlider }
@@ -87,8 +91,11 @@ export default function sketch ({ p5Instance, textManager, corpus }) {
   }
 
   const randomizeValues = (cfg) => {
-    cfg.textFrameRate = Math.round(p5Instance.random(10, 200))
     cfg.colorFrameRate = Math.round(p5Instance.random(10, 50))
+    cfg.textFrameRate = Math.round(p5Instance.random(10, 200))
+
+    cfg.colorFrameMod = vectorMod({ value: cfg.colorFrameRate, min: 1, max: 200, direction: p5Instance.random([-1, 1]), mod: 0 })
+    cfg.textFrameMod = vectorMod({ value: cfg.textFrameRate, min: 1, max: 200, direction: p5Instance.random([-1, 1]), mod: 0.5 })
   }
 
   p5Instance.setup = () => {
@@ -159,13 +166,13 @@ export default function sketch ({ p5Instance, textManager, corpus }) {
         break
 
       case 's':
-        if (config.capturing) {
-          capturer.stop()
-          capturer.save()
-        } else {
-          capturer.start()
-        }
-        config.capturing = !config.capturing
+        // if (config.capturing) {
+        //   capturer.stop()
+        //   capturer.save()
+        // } else {
+        //   capturer.start()
+        // }
+        // config.capturing = !config.capturing
         break
 
       case 't':
@@ -197,16 +204,23 @@ export default function sketch ({ p5Instance, textManager, corpus }) {
   let textCells = []
 
   const coreDraw = () => {
+    let updated = false
     config.frame += 1
     if (blockCells.length === 0 || config.frame % config.colorFrameRate === 0) {
+      config.colorFrameRate = Math.round(config.colorFrameMod())
       config.colorModVector.update()
       config.inflectionVector.update()
       blockCells = buildGridCells({ cells: config.cells, cellSize: config.cellSize })
+      updated = true
     }
     if (config.textReset || textCells.length === 0 || config.frame % config.textFrameRate === 0) {
+      console.log(`text update: rate: ${config.textFrameRate}`)
+      config.textFrameRate = Math.round(config.textFrameMod())
+      console.log(`new rate: ${config.textFrameRate}`)
       config.textReset = false
       textCells = buildTextCells({ cells: config.cells, cellSize: config.cellSize, getchar: config.textProvider(config.textFrame) })
       config.textFrame += 1
+      updated = true
     }
 
     const textCheck = p5Instance.random()
@@ -217,7 +231,10 @@ export default function sketch ({ p5Instance, textManager, corpus }) {
     }
 
     paintGridsNew({ textCells, blockCells })
-    capturer.capture(document.getElementById('defaultCanvas0'))
+    // if (config.capturing && updated) {
+    //   console.log('capturing fame')
+    //   capturer.capture(document.getElementById('defaultCanvas0'))
+    // }
     if (config.displayGui) updateGuiLabels(controls)
   }
 

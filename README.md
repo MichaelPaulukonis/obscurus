@@ -29,3 +29,26 @@
 - my tumblr code ???
 - https://stackoverflow.com/questions/48234696/how-to-put-a-gif-with-canvas
 - https://creative-coding.decontextualize.com/video/
+
+
+## Saving frames and animations
+- you know, one could just save the array of text and images and export those for re-generation server-side
+- using CCapture which slows things WAAAAAAAAY down
+- https://github.com/pbeshai/p5js-ccapture
+- [CREATING VIDEOS FROM PROCESSING'S P5.JS WITH CCAPTURE.JS AND FFMPEG](https://peterbeshai.com/blog/2018-10-28-p5js-ccapture/)
+  - Also contains notes on building mp4s and gifs (see below)
+  - The rest of their website is worth checking out
+- https://medium.com/@ffmaer/record-p5-js-with-ccapture-js-8e3ac9488ac3
+
+### ffmpeg on Mac
+Homebrew wasn't working for me (I'm on 10.12, so not the freshest).
+
+But I was able to install a static build folloring [these instructions](https://superuser.com/a/624562/972)
+
+```
+ffmpeg -r 30 -f image2 -s 500x500 -i "%07d.png" -vcodec libx264 -crf 17 -pix_fmt yuv420p output.mp4
+```
+
+```
+convert -delay 3.33 -loop 0 *.png output.gif
+```
