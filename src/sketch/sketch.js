@@ -21,6 +21,8 @@ const config = {
   textFrame: 0,
   colorFrameRate: 10,
   textFrameRate: 200,
+  previousTextFrameCount: 0,
+  previousColorFrameCount: 0,
   displayGui: false,
   textReset: false,
   noiseSeed: null,
@@ -91,11 +93,11 @@ export default function sketch ({ p5Instance, textManager, corpus }) {
   }
 
   const randomizeValues = (cfg) => {
-    cfg.colorFrameRate = Math.round(p5Instance.random(10, 50))
-    cfg.textFrameRate = Math.round(p5Instance.random(10, 200))
+    cfg.colorFrameRate = Math.round(p5Instance.random(1, 50))
+    cfg.textFrameRate = Math.round(p5Instance.random(1, 60))
 
-    cfg.colorFrameMod = vectorMod({ value: cfg.colorFrameRate, min: 1, max: 200, direction: p5Instance.random([-1, 1]), mod: 0 })
-    cfg.textFrameMod = vectorMod({ value: cfg.textFrameRate, min: 1, max: 200, direction: p5Instance.random([-1, 1]), mod: 0.5 })
+    cfg.colorFrameMod = vectorMod({ value: cfg.colorFrameRate, min: 1, max: 60, direction: p5Instance.random([-1, 1]), mod: 0.3 })
+    cfg.textFrameMod = vectorMod({ value: cfg.textFrameRate, min: 1, max: 200, direction: p5Instance.random([-1, 1]), mod: 0.2 })
   }
 
   p5Instance.setup = () => {
@@ -206,17 +208,19 @@ export default function sketch ({ p5Instance, textManager, corpus }) {
   const coreDraw = () => {
     let updated = false
     config.frame += 1
-    if (blockCells.length === 0 || config.frame % config.colorFrameRate === 0) {
+    if (blockCells.length === 0 || config.frame - config.previousColorFrameCount === config.colorFrameRate) {
+      config.previousColorFrameCount = config.frame
+      // console.log(`color frame: ${config.frame} rate: ${config.colorFrameRate}`)
       config.colorFrameRate = Math.round(config.colorFrameMod())
       config.colorModVector.update()
       config.inflectionVector.update()
       blockCells = buildGridCells({ cells: config.cells, cellSize: config.cellSize })
       updated = true
     }
-    if (config.textReset || textCells.length === 0 || config.frame % config.textFrameRate === 0) {
-      console.log(`text update: rate: ${config.textFrameRate}`)
+    if (config.textReset || textCells.length === 0 || config.frame - config.previousTextFrameCount === config.textFrameRate) {
+      config.previousTextFrameCount = config.frame
+      // console.log(`text frame: ${config.frame} rate: ${config.textFrameRate}`)
       config.textFrameRate = Math.round(config.textFrameMod())
-      console.log(`new rate: ${config.textFrameRate}`)
       config.textReset = false
       textCells = buildTextCells({ cells: config.cells, cellSize: config.cellSize, getchar: config.textProvider(config.textFrame) })
       config.textFrame += 1
