@@ -236,10 +236,10 @@ export default function sketch ({ p5Instance, textManager, corpus, config }) {
   const coreDraw = () => {
     let updated = false
     config.frame += 1
-    if (blockCells.length === 0 || config.frame - config.previousColorFrameCount === config.colorFrameRate) {
+    if (blockCells.length === 0 || config.colorFrameReset || config.frame - config.previousColorFrameCount === config.colorFrameRate) {
+      config.colorFrameReset = false
       config.previousColorFrameCount = config.frame
-      // console.log(`color frame: ${config.frame} rate: ${config.colorFrameRate}`)
-      config.colorFrameRate = Math.round(config.colorFrameMod())
+      config.colorFrameRate = Math.round(config.colorFrameMod()) // doh! we need to modify THIS, too!!!
       config.colorModVector.update()
       config.inflectionVector.update()
       blockCells = buildGridCells({ cells: config.cells, cellSize: config.cellSize })
@@ -247,7 +247,6 @@ export default function sketch ({ p5Instance, textManager, corpus, config }) {
     }
     if (config.textReset || textCells.length === 0 || config.frame - config.previousTextFrameCount === config.textFrameRate) {
       config.previousTextFrameCount = config.frame
-      // console.log(`text frame: ${config.frame} rate: ${config.textFrameRate}`)
       config.textFrameRate = Math.round(config.textFrameMod())
       config.textReset = false
       textCells = buildTextCells({ cells: config.cells, cellSize: config.cellSize, getchar: config.textProvider(config.textFrame) })

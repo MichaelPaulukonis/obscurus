@@ -14,4 +14,7 @@ const vectorMod = ({
   }
 }
 
+// TODO: need to be able to expose a setter for the value, and perhaps direction
+// allowing for GUI twiddling
+
 module.exports = vectorMod

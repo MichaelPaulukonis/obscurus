@@ -46,6 +46,8 @@ export default class GuiControl {
       textFrameRate: 200,
       previousTextFrameCount: 0,
       previousColorFrameCount: 0,
+      colorFrameReset: false,
+      textFrameReset: false,
       displayGui: false,
       textReset: false,
       noiseSeed: null,
@@ -59,7 +61,22 @@ export default class GuiControl {
     const gui = new dat.GUI({ name: 'OBSCURUS' })
     gui.remember(params)
     gui.add(params, 'paused').listen()
-    // gui.add(params, 'textsize').min(4).max(64).step(1).listen()
+    gui.add(params, 'captureLimit').min(10).max(1000).step(1).listen()
+
+    gui.add(params, 'p5frameRate').min(1).max(60).step(1).listen()
+    gui.add(params, 'captureFrameRate').min(1).max(60).step(1).listen()
+
+    gui.add(params, 'colorFrameRate').min(1).max(1000).step(1)
+      .onChange(() => {
+        params.previousColorFrameCount = params.frame + params.colorFrameRate - 1
+      })
+      .listen()
+    gui.add(params, 'textFrameRate').min(1).max(1000).step(1)
+      .onChange(() => {
+        params.previousTextFrameCount = params.frame + params.textFrameRate - 1
+      })
+      .listen()
+
     // gui.add(params, 'textsizeJitRange').min(0).max(64).step(1).listen()
     // gui.add(params, 'distanceJitRange').min(0).max(64).step(1).listen()
     // gui.add(params, 'heightOffset').min(-20).max(20).step(1).listen()
