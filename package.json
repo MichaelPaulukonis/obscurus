@@ -16,6 +16,7 @@
     "axios": "^0.19.2",
     "ccapture.js": "github:aceslowman/ccapture.js#npm-fix",
     "cheerio": "^1.0.0-rc.3",
+    "dat.gui": "^0.7.7",
     "p5": "^1.0.0"
   },
   "devDependencies": {

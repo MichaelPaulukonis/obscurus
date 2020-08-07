@@ -1,7 +1,7 @@
 // import CCapture from 'ccapture.js'
 import vectorMod from './vectorMod'
 
-const config = {
+const configOriginal = {
   cellSize: 30,
   textSize: 24,
   cells: { x: 20, y: 20 },
@@ -68,7 +68,7 @@ const vector = ({ value, direction, speed, min, max }) => {
   return self
 }
 
-export default function sketch ({ p5Instance, textManager, corpus }) {
+export default function sketch ({ p5Instance, textManager, corpus, config }) {
   config.corpus = corpus
 
   const fonts = {}
