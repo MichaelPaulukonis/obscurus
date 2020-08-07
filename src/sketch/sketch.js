@@ -8,6 +8,7 @@ const config = {
   width: 500, // rather these were a functions of the cellsize, so everything fits smoothly
   height: 500,
   p5frameRate: 60,
+  captureFrameRate: 10,
   inflectionVector: {},
   colorModVector: {},
   colorFrameMod: {},
@@ -26,8 +27,33 @@ const config = {
   displayGui: false,
   textReset: false,
   noiseSeed: null,
-  capturing: false
+  capturing: false,
+  captureOverride: false,
+  captureCount: 0,
+  captureLimit: 100
 }
+
+const datestring = () => {
+  const d = new Date()
+  const year = d.getFullYear()
+  const month = String(d.getMonth() + 1).padStart(2, '0')
+  const day = String(d.getDate()).padStart(2, '0')
+  const hour = String(d.getHours()).padStart(2, '0')
+  const min = String(d.getMinutes()).padStart(2, '0')
+  const secs = String(d.getSeconds()).padStart(2, '0')
+  return `${year}${month}${day}${hour}${min}${secs}`
+}
+
+const filenamer = prefix => {
+  let frame = 0
+  return () => {
+    const name = `${prefix}-${String(frame).padStart(6, '0')}`
+    frame += 1
+    return name
+  }
+}
+
+let namer = null
 
 const vector = ({ value, direction, speed, min, max }) => {
   const self = { value, direction, speed, min, max }
@@ -46,7 +72,6 @@ export default function sketch ({ p5Instance, textManager, corpus }) {
   config.corpus = corpus
 
   const fonts = {}
-  // const capturer = new CCapture({ format: 'png', framerate: config.p5frameRate })
 
   p5Instance.preload = () => {
     ['GothamBold', 'Helvetica-Bold-Font', 'Interstate-Regular-Font'].forEach((font) => {
@@ -168,13 +193,16 @@ export default function sketch ({ p5Instance, textManager, corpus }) {
         break
 
       case 's':
-        // if (config.capturing) {
-        //   capturer.stop()
-        //   capturer.save()
-        // } else {
-        //   capturer.start()
-        // }
-        // config.capturing = !config.capturing
+        if (config.capturing) {
+          config.captureOverride = false
+          p5Instance.frameRate(config.p5frameRate)
+        } else {
+          namer = filenamer(datestring())
+          config.captureCount = 0
+          config.captureOverride = true
+          p5Instance.frameRate(config.captureFrameRate)
+        }
+        config.capturing = !config.capturing
         break
 
       case 't':
@@ -235,10 +263,16 @@ export default function sketch ({ p5Instance, textManager, corpus }) {
     }
 
     paintGridsNew({ textCells, blockCells })
-    // if (config.capturing && updated) {
-    //   console.log('capturing fame')
-    //   capturer.capture(document.getElementById('defaultCanvas0'))
-    // }
+    if (config.capturing && (updated || config.captureOverride)) {
+      config.captureOverride = false
+      console.log('capturing frame')
+      p5Instance.saveCanvas(namer(), 'png')
+      config.captureCount += 1
+      if (config.captureCount > config.captureLimit) {
+        config.capturing = false
+        p5Instance.frameRate(config.p5frameRate)
+      }
+    }
     if (config.displayGui) updateGuiLabels(controls)
   }
 
@@ -246,9 +280,12 @@ export default function sketch ({ p5Instance, textManager, corpus }) {
 
   const windowFactory = (cells) => (startIndex) => {
     const bloc = textManager.windowMaker(cells.x * cells.x)(startIndex)
-    let index = -1
+    const direction = p5Instance.random() < 0.01 ? -1 : 1
+    let index = direction === 1 ? -1 : bloc.length
     return function * () {
-      index = (index + 1) % bloc.length
+      index = direction === 1
+        ? (index + direction) % bloc.length
+        : index ? index + direction : bloc.length - 1
       yield bloc[index]
       // I couldn't get statements AFTER yield to execute ?????
       /// maybe because I'm not using a 'done' thing?
@@ -288,7 +325,6 @@ export default function sketch ({ p5Instance, textManager, corpus }) {
           x: (x * cellSize) + xMod,
           y: (y * cellSize) + yMod
         })
-        // console.log(`${t}: ${w} - ${cellSize} ${xMod}`)
       }
     }
     return textGrid

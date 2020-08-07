@@ -55,8 +55,23 @@ But I was able to install a static build folloring [these instructions](https://
 
 ```bash
 ffmpeg -r 30 -f image2 -s 500x500 -i "%07d.png" -vcodec libx264 -crf 17 -pix_fmt yuv420p output.mp4
+
+ffmpeg -r 30 -f image2 -s 500x500 -i "20200802210728-%06d.png" -vcodec libx264 -crf 17 -pix_fmt yuv420p output.mp4
+
 ```
 
 ```bash
 convert -delay 3.33 -loop 0 *.png output.gif
+```
+
+a script that does each of these, kinda (I built it in `zsh` so YMMV):
+
+```bash
+mkmp4() {
+ ffmpeg -r 30 -f image2 -s 500x500 -i "$1-%06d.png" -vcodec libx264 -crf 17 -pix_fmt yuv420p $1.mp4
+}
+
+mkgif() {
+  convert -delay 3.33 -loop 0 *.png $1.gif
+}
 ```

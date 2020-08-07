@@ -17,9 +17,6 @@ coverage
 # nyc test coverage
 .nyc_output
 
-# Grunt intermediate storage (http://gruntjs.com/creating-plugins#storing-task-files)
-.grunt
-
 # node-waf configuration
 .lock-wscript
 
@@ -48,12 +45,11 @@ package-lock.json
 # dist
 dist
 
-# IDE / Editor
-.idea
-
 # Service worker
 sw.*
 
 # Mac OSX
 .DS_Store
 
+# env
+.env

@@ -1,9 +1,10 @@
 {
-  "name": "gif-text-thing",
-  "version": "0.1.0",
+  "name": "obscurus",
+  "version": "0.2.0",
   "main": "src/index.js",
   "scripts": {
-    "dev": "npm start",
+    "dev": "INCLUDE_CAPTURE=false npm start",
+    "capture": "INCLUDE_CAPTURE=true npm start",
     "start": "webpack-dev-server --watch",
     "build": "npm run clean && webpack -p",
     "clean": "rm -rf dist",
@@ -15,8 +16,7 @@
     "axios": "^0.19.2",
     "ccapture.js": "github:aceslowman/ccapture.js#npm-fix",
     "cheerio": "^1.0.0-rc.3",
-    "p5": "^1.0.0",
-    "p5.gif": "^1.0.6"
+    "p5": "^1.0.0"
   },
   "devDependencies": {
     "@babel/core": "^7.10.4",

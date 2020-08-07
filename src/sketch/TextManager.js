@@ -32,6 +32,13 @@ export default class TextManager {
       charIndex = 0
     }
 
+    // since startIndex comes from the unbounded (increasing) textFrame
+    // we use module to loop the index back to the beginning
+    // if HOWEVER we got an actual index pegged to the length
+    // except the sketch doesn't need to know the length
+    // if it instead provided a DIRECTION
+    // we could close over it and use and loop here
+    // and never need a new index, because every iteration is going to be +1 or -1
     self.windowMaker = (width) => (startIndex) => {
       const bloc = []
       for (let i = 0; i < width; i++) {

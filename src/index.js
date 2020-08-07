@@ -8,19 +8,29 @@ const textManager = new TextManager()
 let newCorpus = []
 
 const theStuff = () => {
-    const builder = (p5Instance) => {
-        textManager.randomPost = randomPost // uh.... if needed
-        sketch({ p5Instance, textManager, corpus: newCorpus })
-    }
+  const builder = (p5Instance) => {
+    textManager.randomPost = randomPost // uh.... if needed
+    sketch({ p5Instance, textManager, corpus: newCorpus })
+  }
 
-    randomPost()
-      .then((texts) => {
-        newCorpus = corpus.concat(texts)
-      })
-      .finally((_) => {
-        new P5(builder) // eslint-disable-line no-new
-      })
+  const launch = () => randomPost()
+    .then((texts) => {
+      newCorpus = corpus.concat(texts)
+    })
+    .finally((_) => {
+      new P5(builder) // eslint-disable-line no-new
+    })
 
+  // let capturer = {}
+  //   capturer = function () {
+  //     return {
+  //       stop: () => { },
+  //       save: () => { },
+  //       start: () => { },
+  //       capture: () => { }
+  //     }
+  //   }
+  launch()
 }
 
 theStuff()
