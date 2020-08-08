@@ -6,7 +6,7 @@ const vector = ({
   speed = 0.5
 }) => {
   const self = { value, direction, speed, min, max }
-  self.update = self.next = () => {
+  self.next = () => {
     let newValue = self.value + (self.speed * self.direction)
     self.direction = (newValue <= self.min || newValue >= self.max) ? -self.direction : self.direction
     newValue = Math.max(Math.min(newValue, self.max), self.min)

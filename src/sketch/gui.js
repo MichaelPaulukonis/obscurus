@@ -16,12 +16,14 @@ export default class GuiControl {
       .onChange(() => {
         params.colorFrameReset = true
         params.colorFrameMod.value = params.colorFrameRate
+        params.colorFrameMod.max = Math.max(params.colorFrameRate, params.colorFrameMod.max)
       })
       .listen()
     gui.add(params, 'textFrameRate').min(1).max(1000).step(1)
       .onChange(() => {
         params.textReset = true
         params.textFrameMod.value = params.textFrameRate
+        params.textFrameMod.max = Math.max(params.textFrameRate, params.textFrameMod.max)
       })
       .listen()
 

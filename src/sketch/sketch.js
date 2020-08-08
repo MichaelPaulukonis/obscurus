@@ -38,6 +38,7 @@ export default function sketch ({ p5Instance, textManager, corpus, config }) {
     cfg.colorFrameRate = Math.round(p5Instance.random(1, 50))
     cfg.textFrameRate = Math.round(p5Instance.random(1, 60))
 
+    // doh! the min/max are not matched in the sliders!
     cfg.colorFrameMod = vector({ value: cfg.colorFrameRate, min: 1, max: 60, direction: p5Instance.random([-1, 1]), mod: 0.3 })
     cfg.textFrameMod = vector({ value: cfg.textFrameRate, min: 1, max: 200, direction: p5Instance.random([-1, 1]), mod: 0.2 })
   }
@@ -150,8 +151,8 @@ export default function sketch ({ p5Instance, textManager, corpus, config }) {
       config.colorFrameReset = false
       config.previousColorFrameCount = config.frame
       config.colorFrameRate = Math.round(config.colorFrameMod.next()) // doh! we need to modify THIS, too!!!
-      config.colorModVector.update()
-      config.inflectionVector.update()
+      config.colorModVector.next()
+      config.inflectionVector.next()
       blockCells = buildGridCells({ cells: config.cells, cellSize: config.cellSize })
       updated = true
     }
