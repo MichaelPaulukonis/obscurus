@@ -1,63 +1,9 @@
 import * as dat from 'dat.gui'
+import * as config from './config'
 
 export default class GuiControl {
   constructor () {
-    this.setupGui = (sketch) => { }
-
-    const paramsInitialOld = {
-      name: 'OBSCURUS',
-      cellSize: 30,
-      textSize: 24,
-      cells: { x: 20, y: 20 },
-      width: 500, // rather these were a functions of the cellsize, so everything fits smoothly
-      height: 500,
-      inflectionVector: {},
-      colorModVector: {},
-      colorFrameMod: {},
-      textFrameMod: {},
-      paused: false,
-      textProvider: null,
-      gridOutline: false,
-      colorFrameRate: 10,
-      textFrameRate: 200,
-      captureLimit: 100
-    }
-
-    const configOriginal = {
-      cellSize: 30,
-      textSize: 24,
-      cells: { x: 20, y: 20 },
-      width: 500, // rather these were a functions of the cellsize, so everything fits smoothly
-      height: 500,
-      p5frameRate: 60,
-      captureFrameRate: 10,
-      inflectionVector: {},
-      colorModVector: {},
-      colorFrameMod: {},
-      textFrameMod: {},
-      paused: false,
-      textProvider: null,
-      corpus: [],
-      gridOutline: false,
-      dumbT: 0,
-      frame: 0,
-      textFrame: 0,
-      colorFrameRate: 10,
-      textFrameRate: 200,
-      previousTextFrameCount: 0,
-      previousColorFrameCount: 0,
-      colorFrameReset: false,
-      textFrameReset: false,
-      displayGui: false,
-      textReset: false,
-      noiseSeed: null,
-      capturing: false,
-      captureOverride: false,
-      captureCount: 0,
-      captureLimit: 100
-    }
-
-    const params = Object.assign({}, configOriginal)
+    const params = Object.assign({}, config)
     const gui = new dat.GUI({ name: 'OBSCURUS' })
     gui.remember(params)
     gui.add(params, 'paused').listen()
@@ -68,12 +14,14 @@ export default class GuiControl {
 
     gui.add(params, 'colorFrameRate').min(1).max(1000).step(1)
       .onChange(() => {
-        params.previousColorFrameCount = params.frame + params.colorFrameRate - 1
+        params.colorFrameReset = true
+        params.colorFrameMod.value = params.colorFrameRate
       })
       .listen()
     gui.add(params, 'textFrameRate').min(1).max(1000).step(1)
       .onChange(() => {
-        params.previousTextFrameCount = params.frame + params.textFrameRate - 1
+        params.textReset = true
+        params.textFrameMod.value = params.textFrameRate
       })
       .listen()
 

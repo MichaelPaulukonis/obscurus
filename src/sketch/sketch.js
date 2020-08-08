@@ -1,37 +1,5 @@
 // import CCapture from 'ccapture.js'
-import vectorMod from './vectorMod'
-
-const configOriginal = {
-  cellSize: 30,
-  textSize: 24,
-  cells: { x: 20, y: 20 },
-  width: 500, // rather these were a functions of the cellsize, so everything fits smoothly
-  height: 500,
-  p5frameRate: 60,
-  captureFrameRate: 10,
-  inflectionVector: {},
-  colorModVector: {},
-  colorFrameMod: {},
-  textFrameMod: {},
-  paused: false,
-  textProvider: null,
-  corpus: [],
-  gridOutline: false,
-  dumbT: 0,
-  frame: 0,
-  textFrame: 0,
-  colorFrameRate: 10,
-  textFrameRate: 200,
-  previousTextFrameCount: 0,
-  previousColorFrameCount: 0,
-  displayGui: false,
-  textReset: false,
-  noiseSeed: null,
-  capturing: false,
-  captureOverride: false,
-  captureCount: 0,
-  captureLimit: 100
-}
+import { vector } from './vectorMod'
 
 const datestring = () => {
   const d = new Date()
@@ -55,19 +23,6 @@ const filenamer = prefix => {
 
 let namer = null
 
-const vector = ({ value, direction, speed, min, max }) => {
-  const self = { value, direction, speed, min, max }
-  self.update = () => {
-    let newValue = self.value + (self.speed * self.direction)
-    if (newValue >= self.max || newValue <= self.min) {
-      self.direction = -self.direction
-      newValue = Math.max(Math.min(newValue, self.max), self.min)
-    }
-    self.value = newValue
-  }
-  return self
-}
-
 export default function sketch ({ p5Instance, textManager, corpus, config }) {
   config.corpus = corpus
 
@@ -79,50 +34,12 @@ export default function sketch ({ p5Instance, textManager, corpus, config }) {
     })
   }
 
-  let guiControls = []
-  let controls = {}
-
-  const displayControls = (controls) => (show) => {
-    // this.elt.style.display = 'block';
-    const func = show ? 'show' : 'hide'
-    controls.forEach(c => c[func]())
-  }
-  let showHideGui
-
-  const configUpdater = slider => configSetting => () => { config[configSetting] = slider.value() }
-  const sliderUpdater = slider => configSetting => () => { slider.value(config[configSetting]) }
-
-  const setupGui = () => {
-    const colorFrameSlider = p5Instance.createSlider(1, 1000, config.colorFrameRate, 1)
-    colorFrameSlider.position(20, 40)
-    colorFrameSlider.input(configUpdater(colorFrameSlider)('colorFrameRate'))
-
-    const textFrameSlider = p5Instance.createSlider(1, 1000, config.textFrameRate, 1)
-    textFrameSlider.position(20, 60)
-    textFrameSlider.input(configUpdater(textFrameSlider)('textFrameRate'))
-
-    guiControls = [colorFrameSlider, textFrameSlider]
-    controls = { colorFrameSlider, textFrameSlider }
-    showHideGui = displayControls(guiControls)
-    showHideGui(config.displayGui)
-  }
-
-  const updateGuiLabels = (controls) => {
-    p5Instance.fill('#000')
-    p5Instance.stroke('#fff')
-    p5Instance.textAlign(p5Instance.LEFT)
-
-    Object.keys(controls).forEach(name => {
-      p5Instance.text(name, controls[name].x + controls[name].width + 10, controls[name].y)
-    })
-  }
-
   const randomizeValues = (cfg) => {
     cfg.colorFrameRate = Math.round(p5Instance.random(1, 50))
     cfg.textFrameRate = Math.round(p5Instance.random(1, 60))
 
-    cfg.colorFrameMod = vectorMod({ value: cfg.colorFrameRate, min: 1, max: 60, direction: p5Instance.random([-1, 1]), mod: 0.3 })
-    cfg.textFrameMod = vectorMod({ value: cfg.textFrameRate, min: 1, max: 200, direction: p5Instance.random([-1, 1]), mod: 0.2 })
+    cfg.colorFrameMod = vector({ value: cfg.colorFrameRate, min: 1, max: 60, direction: p5Instance.random([-1, 1]), mod: 0.3 })
+    cfg.textFrameMod = vector({ value: cfg.textFrameRate, min: 1, max: 200, direction: p5Instance.random([-1, 1]), mod: 0.2 })
   }
 
   p5Instance.setup = () => {
@@ -160,8 +77,6 @@ export default function sketch ({ p5Instance, textManager, corpus, config }) {
     defaults.value = Math.round(p5Instance.random(defaults.min + 20, defaults.max - 40))
     console.log(`inflection: ${defaults.value}`)
     config.inflectionVector = vector(defaults)
-
-    setupGui()
 
     draw()
   }
@@ -209,11 +124,6 @@ export default function sketch ({ p5Instance, textManager, corpus, config }) {
         newText({ config, textManager })
         break
 
-      case 'g':
-        config.displayGui = !config.displayGui
-        showHideGui(config.displayGui)
-        break
-
       case 'o': // for dev purposes
         config.gridOutline = !config.gridOutline
     }
@@ -239,7 +149,7 @@ export default function sketch ({ p5Instance, textManager, corpus, config }) {
     if (blockCells.length === 0 || config.colorFrameReset || config.frame - config.previousColorFrameCount === config.colorFrameRate) {
       config.colorFrameReset = false
       config.previousColorFrameCount = config.frame
-      config.colorFrameRate = Math.round(config.colorFrameMod()) // doh! we need to modify THIS, too!!!
+      config.colorFrameRate = Math.round(config.colorFrameMod.next()) // doh! we need to modify THIS, too!!!
       config.colorModVector.update()
       config.inflectionVector.update()
       blockCells = buildGridCells({ cells: config.cells, cellSize: config.cellSize })
@@ -247,7 +157,7 @@ export default function sketch ({ p5Instance, textManager, corpus, config }) {
     }
     if (config.textReset || textCells.length === 0 || config.frame - config.previousTextFrameCount === config.textFrameRate) {
       config.previousTextFrameCount = config.frame
-      config.textFrameRate = Math.round(config.textFrameMod())
+      config.textFrameRate = Math.round(config.textFrameMod.next())
       config.textReset = false
       textCells = buildTextCells({ cells: config.cells, cellSize: config.cellSize, getchar: config.textProvider(config.textFrame) })
       config.textFrame += 1
@@ -272,7 +182,6 @@ export default function sketch ({ p5Instance, textManager, corpus, config }) {
         p5Instance.frameRate(config.p5frameRate)
       }
     }
-    if (config.displayGui) updateGuiLabels(controls)
   }
 
   p5Instance.draw = draw
