@@ -150,7 +150,7 @@ export default function sketch ({ p5Instance, textManager, corpus, config }) {
     if (blockCells.length === 0 || config.colorFrameReset || config.frame - config.previousColorFrameCount === config.colorFrameRate) {
       config.colorFrameReset = false
       config.previousColorFrameCount = config.frame
-      config.colorFrameRate = Math.round(config.colorFrameMod.next()) // doh! we need to modify THIS, too!!!
+      config.colorFrameRate = Math.round(config.colorFrameMod.next().value) // doh! we need to modify THIS, too!!!
       config.colorModVector.next()
       config.inflectionVector.next()
       blockCells = buildGridCells({ cells: config.cells, cellSize: config.cellSize })
@@ -158,7 +158,7 @@ export default function sketch ({ p5Instance, textManager, corpus, config }) {
     }
     if (config.textReset || textCells.length === 0 || config.frame - config.previousTextFrameCount === config.textFrameRate) {
       config.previousTextFrameCount = config.frame
-      config.textFrameRate = Math.round(config.textFrameMod.next())
+      config.textFrameRate = Math.round(config.textFrameMod.next().value)
       config.textReset = false
       textCells = buildTextCells({ cells: config.cells, cellSize: config.cellSize, getchar: config.textProvider(config.textFrame) })
       config.textFrame += 1

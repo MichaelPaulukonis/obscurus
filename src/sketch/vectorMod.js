@@ -11,7 +11,7 @@ const vector = ({
     self.direction = (newValue <= self.min || newValue >= self.max) ? -self.direction : self.direction
     newValue = Math.max(Math.min(newValue, self.max), self.min)
     self.value = newValue
-    return newValue
+    return self
   }
   return self
 }
