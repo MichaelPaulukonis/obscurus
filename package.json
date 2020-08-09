@@ -9,7 +9,10 @@
     "build": "npm run clean && webpack -p",
     "clean": "rm -rf dist",
     "lint:fix": "standard --fix",
-    "lint": "standard"
+    "lint": "standard",
+    "deploy": "gh-pages -t -d dist",
+    "bump": "npm version patch",
+    "publish": "npm run bump && DEPLOY_ENV=GH_PAGES npm run build && npm run deploy"
   },
   "dependencies": {
     "@babel/polyfill": "^7.10.4",
@@ -27,6 +30,7 @@
     "copy-webpack-plugin": "^5.1.1",
     "dotenv-webpack": "^2.0.0",
     "file-loader": "^6.0.0",
+    "gh-pages": "^3.1.0",
     "html-webpack-plugin": "^3.2.0",
     "standard": "^14.3.4",
     "webpack": "^4.41.4",
