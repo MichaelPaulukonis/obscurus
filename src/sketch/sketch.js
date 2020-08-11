@@ -35,15 +35,6 @@ export default function sketch ({ p5Instance, textManager, corpus, config }) {
     })
   }
 
-  const randomizeValues = (cfg) => {
-    cfg.colorFrameRate = Math.round(p5Instance.random(1, 50))
-    cfg.textFrameRate = Math.round(p5Instance.random(1, 60))
-
-    // doh! the min/max are not matched in the sliders!
-    cfg.colorFrameMod = vector({ value: cfg.colorFrameRate, min: 1, max: 60, direction: p5Instance.random([-1, 1]), mod: 0.3 })
-    cfg.textFrameMod = vector({ value: cfg.textFrameRate, min: 1, max: 200, direction: p5Instance.random([-1, 1]), mod: 0.2 })
-  }
-
   p5Instance.setup = () => {
     if (config.noiseSeed) {
       p5Instance.noiseSeed(config.noiseSeed)
@@ -56,29 +47,6 @@ export default function sketch ({ p5Instance, textManager, corpus, config }) {
     p5Instance.textSize(config.textSize)
     p5Instance.textAlign(p5Instance.CENTER, p5Instance.CENTER)
     p5Instance.textFont(fonts['Interstate-Regular-Font'])
-
-    randomizeValues(config)
-
-    let defaults = {
-      direction: p5Instance.random([1, -1]),
-      speed: 0.0001, // so.... would be nice to have THIS change, too
-      min: 0.001, // smooth curve (close up)
-      max: 0.06 // jagged blocks (zoomed out)
-    }
-    defaults.value = p5Instance.random(defaults.min, defaults.max / 3)
-    console.log(`colorMod: ${defaults.value}`)
-
-    config.colorModVector = vector(defaults)
-
-    defaults = {
-      direction: p5Instance.random([1, -1]),
-      speed: 0.3,
-      min: 80, // more white
-      max: 170 // more black
-    }
-    defaults.value = Math.round(p5Instance.random(defaults.min + 20, defaults.max - 40))
-    console.log(`inflection: ${defaults.value}`)
-    config.inflectionVector = vector(defaults)
 
     draw()
   }
@@ -166,7 +134,7 @@ export default function sketch ({ p5Instance, textManager, corpus, config }) {
       updated = true
     }
 
-    const textCheck = p5Instance.random()
+    const textCheck = Math.random()
     if (textCheck < 0.0001) {
       newText({ config, textManager })
     } else if (textCheck < 0.001) {
@@ -190,7 +158,7 @@ export default function sketch ({ p5Instance, textManager, corpus, config }) {
 
   const windowFactory = (cells) => (startIndex) => {
     const bloc = textManager.windowMaker(cells.x * cells.x)(startIndex)
-    const direction = p5Instance.random() < 0.01 ? -1 : 1
+    const direction = Math.random() < 0.01 ? -1 : 1
     let index = direction === 1 ? -1 : bloc.length
     return function * () {
       index = direction === 1
