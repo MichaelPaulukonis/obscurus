@@ -1,4 +1,4 @@
-import P5 from 'p5'
+import P5 from 'p5/lib/p5.min.js'
 import sketch from './sketch'
 import randomPost from './sketch/tumblr-random.js'
 import TextManager from './sketch/TextManager'

@@ -24,12 +24,13 @@ const filenamer = prefix => {
 let namer = null
 
 export default function sketch ({ p5Instance, textManager, corpus, config }) {
+  p5Instance.disableFriendlyErrors = true
   config.corpus = corpus
 
   const fonts = {}
 
   p5Instance.preload = () => {
-    ['GothamBold', 'Helvetica-Bold-Font', 'Interstate-Regular-Font'].forEach((font) => {
+    ['Interstate-Regular-Font'].forEach((font) => {
       fonts[font] = p5Instance.loadFont(`./assets/fonts/${font}.ttf`)
     })
   }
