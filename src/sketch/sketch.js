@@ -1,5 +1,4 @@
-// import CCapture from 'ccapture.js'
-import { vector } from './vectorMod'
+import config from "./config"
 
 const datestring = () => {
   const d = new Date()
@@ -23,10 +22,20 @@ const filenamer = prefix => {
 
 let namer = null
 
+const initialOffset = (img) => ({
+  x: Math.floor(Math.random() * img.width - config.cellSize),
+  y: Math.floor(Math.random() * img.height - config.cellSize)
+})
+
+let currentOffset = {}
+const vectorX = { direction: 1, speed: 2 }
+const vectorY = { direction: 1, speed: 1 }
+
 export default function sketch ({ p5Instance, textManager, corpus, config }) {
   p5Instance.disableFriendlyErrors = true
   config.corpus = corpus
 
+  let img = null
   const fonts = {}
 
   p5Instance.preload = () => {
@@ -48,8 +57,22 @@ export default function sketch ({ p5Instance, textManager, corpus, config }) {
     p5Instance.textAlign(p5Instance.CENTER, p5Instance.CENTER)
     p5Instance.textFont(fonts['Interstate-Regular-Font'])
 
+    setImage('./assets/images/fire.01.jpeg')
+
     draw()
   }
+
+  const imageReady = () => {
+    img.loadPixels()
+    currentOffset = initialOffset(img)
+    config.imageLoaded = true
+  }
+
+  const setImage = (filename) => {
+    config.imageLoaded = false
+    img = p5Instance.loadImage(filename, imageReady)
+  }
+
 
   p5Instance.mouseClicked = () => {
     draw()
@@ -134,6 +157,12 @@ export default function sketch ({ p5Instance, textManager, corpus, config }) {
       updated = true
     }
 
+    if (1 === 1) {
+      const newOffset = getOffset(currentOffset)
+
+      currentOffset = newOffset
+    }
+
     const textCheck = Math.random()
     if (textCheck < 0.0001) {
       newText({ config, textManager })
@@ -141,7 +170,7 @@ export default function sketch ({ p5Instance, textManager, corpus, config }) {
       config.textProvider = windowFactory(config.cells)
     }
 
-    paintGridsNew({ textCells, blockCells })
+    paintGrids({ textCells, blockCells })
     if (config.capturing && (updated || config.captureOverride)) {
       config.captureOverride = false
       console.log('capturing frame')
@@ -168,6 +197,32 @@ export default function sketch ({ p5Instance, textManager, corpus, config }) {
       // I couldn't get statements AFTER yield to execute ?????
       /// maybe because I'm not using a 'done' thing?
     }
+  }
+
+  // TODO:: encapsulate the vectors
+  const getOffset = (previousOffset) => {
+    let nextOffset = { x: previousOffset.x + vectorX.direction * vectorX.speed, y: previousOffset.y + vectorY.direction * vectorY.speed }
+    vectorX.direction = (nextOffset.x >= img.width - config.cellSize|| nextOffset.x <= 0) ? -vectorX.direction : vectorX.direction
+    vectorY.direction = (nextOffset.y >= img.height - config.cellSize || nextOffset.y <= 0) ? -vectorY.direction : vectorY.direction
+
+    return nextOffset
+  }
+
+  const buildRgbGridCells = ({ cells, cellSize, offset }) => {
+    const grid = []
+    for (var y = 0; y < cells.y; y++) {
+      for (var x = 0; x < cells.x; x++) {
+        const background = getColor(x, y, offset)
+        grid.push({
+          background,
+          x: x * cellSize,
+          y: y * cellSize,
+          cellSize
+        })
+      }
+    }
+    config.dumbT = config.dumbT + config.colorModVector.value
+    return grid
   }
 
   const buildGridCells = ({ cells, cellSize }) => {
@@ -208,7 +263,7 @@ export default function sketch ({ p5Instance, textManager, corpus, config }) {
     return textGrid
   }
 
-  const paintGridsNew = ({ textCells, blockCells }) => {
+  const paintGrids = ({ textCells, blockCells }) => {
     p5Instance.textAlign(p5Instance.LEFT, p5Instance.CENTER)
 
     if (config.gridOutline) {
@@ -226,4 +281,13 @@ export default function sketch ({ p5Instance, textManager, corpus, config }) {
 
     textCells.forEach(cell => p5Instance.text(cell.text, cell.x, cell.y))
   }
+
+  // average code based on http://stackoverflow.com/a/12408627/41153
+  // this is likely to fail if xLoc,yLoc is with pixSize of width,height
+  // but works for what I'm currently doing....
+  const getColor = (xLoc, yLoc, offset) => {
+    var pix = img.drawingContext.getImageData(xLoc + offset.x, yLoc + offset.y, 1, 1).data
+    return p5Instance.color(pix[0], pix[1], pix[2])
+  }
+
 }
