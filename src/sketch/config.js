@@ -10,7 +10,7 @@ let defaults = {
   max: 0.06 // jagged blocks (zoomed out)
 }
 defaults.value = randomArb(defaults.min, defaults.max / 3)
-const colorModVector = vector(defaults)
+const blockModVector = vector(defaults)
 
 defaults = {
   direction: randomHeading(), // Math.random() p5Instance.random([1, -1]),
@@ -21,12 +21,22 @@ defaults = {
 defaults.value = Math.round(randomArb(defaults.min + 20, defaults.max - 40))
 const inflectionVector = vector(defaults)
 
-const colorFrameRate = Math.round(randomArb(1, 50))
-const textFrameRate = Math.round(randomArb(1, 60))
+defaults = {
+  direction: randomHeading(), // Math.random() p5Instance.random([1, -1]),
+  speed: 1,
+  min: 1,
+  max: 30
+}
+defaults.value = Math.round(randomArb(defaults.min + 20, defaults.max - 40))
+const colorModVector = vector(defaults)
 
-// doh! the min/max are not matched in the sliders!
-const colorFrameMod = vector({ value: colorFrameRate, min: 1, max: 60, direction: randomHeading(), mod: 0.3 })
+const blockFrameRate = Math.round(randomArb(1, 50))
+const textFrameRate = Math.round(randomArb(1, 60))
+const colorFrameRate = Math.round(randomArb(1, 30))
+
+const blockFrameMod = vector({ value: blockFrameRate, min: 1, max: 60, direction: randomHeading(), mod: 0.3 })
 const textFrameMod = vector({ value: textFrameRate, min: 1, max: 200, direction: randomHeading(), mod: 0.2 })
+const colorFrameMod = vector({ value: colorFrameRate, min: 1, max: 200, direction: randomHeading(), mod: 0.2 })
 
 const config = {
   cellSize: 30,
@@ -37,9 +47,11 @@ const config = {
   p5frameRate: 60,
   captureFrameRate: 20,
   inflectionVector,
+  blockModVector,
   colorModVector,
-  colorFrameMod,
+  blockFrameMod,
   textFrameMod,
+  colorFrameMod,
   paused: false,
   textProvider: null,
   useColor: true,
@@ -48,14 +60,16 @@ const config = {
   dumbT: 0,
   frame: 0,
   textFrame: 0,
-  colorFrameRate,
+  blockFrameRate,
   textFrameRate,
+  colorFrameRate,
+  previousBlockFrameCount: 0,
   previousTextFrameCount: 0,
   previousColorFrameCount: 0,
-  colorFrameReset: false,
+  blockFrameReset: false,
   textFrameReset: false,
+  colorFrameReset: false,
   displayGui: false,
-  textReset: false,
   noiseSeed: null,
   capturing: false,
   captureOverride: false,

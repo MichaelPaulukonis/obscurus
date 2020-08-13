@@ -67,6 +67,7 @@ export default function sketch ({ p5Instance, textManager, corpus, config }) {
   const imageReady = () => {
     img.loadPixels()
     currentOffset = randomImgOffset(img)
+    config.colorFrameReset = true
     config.imageLoaded = true
   }
 
@@ -135,7 +136,7 @@ export default function sketch ({ p5Instance, textManager, corpus, config }) {
   const newText = ({ config, textManager }) => {
     textManager.setText(p5Instance.random(config.corpus))
     config.textProvider = windowFactory(config.cells)
-    config.textReset = true
+    config.textFrameReset = true
   }
 
   const draw = () => {
@@ -150,29 +151,33 @@ export default function sketch ({ p5Instance, textManager, corpus, config }) {
   const coreDraw = () => {
     let updated = false
     config.frame += 1
-    if (blockCells.length === 0 || config.colorFrameReset || config.frame - config.previousColorFrameCount === config.colorFrameRate) {
-      config.colorFrameReset = false
-      config.previousColorFrameCount = config.frame
-      config.colorFrameRate = Math.round(config.colorFrameMod.next().value) // doh! we need to modify THIS, too!!!
-      config.colorModVector.next()
+    if (blockCells.length === 0 || config.blockFrameReset || config.frame - config.previousBlockFrameCount === config.blockFrameRate) {
+      config.previousBlockFrameCount = config.frame
+      config.blockFrameReset = false
+      config.blockFrameRate = Math.round(config.blockFrameMod.next().value)
+      config.blockModVector.next()
       config.inflectionVector.next()
       blockCells = buildGridCells({ cells: config.cells, cellSize: config.cellSize })
       updated = true
     }
-    if (config.textReset || textCells.length === 0 || config.frame - config.previousTextFrameCount === config.textFrameRate) {
+    if (config.textFrameReset || textCells.length === 0 || config.frame - config.previousTextFrameCount === config.textFrameRate) {
       config.previousTextFrameCount = config.frame
+      config.textFrameReset = false
       config.textFrameRate = Math.round(config.textFrameMod.next().value)
-      config.textReset = false
       textCells = buildTextCells({ cells: config.cells, cellSize: config.cellSize, getchar: config.textProvider(config.textFrame) })
       config.textFrame += 1
       updated = true
     }
 
-    // if (1 === 1) {
-    const newOffset = getOffset(currentOffset)
-    colorCells = buildRgbGridCells({ cells: config.cells, cellSize: config.cellSize, offset: newOffset })
-    currentOffset = newOffset
-    // }
+    if (config.colorFrameReset || colorCells.length === 0 || config.frame - config.previouscolorFrameCount === config.colorFrameRate) {
+      config.previouscolorFrameCount = config.frame
+      config.colorFrameReset = false
+      config.colorFrameRate = Math.round(config.colorFrameMod.next().value)
+      const newOffset = getOffset(currentOffset)
+      colorCells = buildRgbGridCells({ cells: config.cells, cellSize: config.cellSize, offset: newOffset })
+      currentOffset = newOffset
+      updated = true
+    }
 
     const textCheck = Math.random()
     if (textCheck < 0.0001) {
@@ -232,7 +237,7 @@ export default function sketch ({ p5Instance, textManager, corpus, config }) {
         })
       }
     }
-    config.dumbT = config.dumbT + config.colorModVector.value
+    config.dumbT = config.dumbT + config.blockModVector.value
     return grid
   }
 
@@ -240,7 +245,7 @@ export default function sketch ({ p5Instance, textManager, corpus, config }) {
     const bwGrid = []
     for (var y = 0; y < cells.y; y++) {
       for (var x = 0; x < cells.x; x++) {
-        const triDnoise = (255 * p5Instance.noise(config.colorModVector.value * x * cells.x, config.colorModVector.value * y * cells.y, config.dumbT))
+        const triDnoise = (255 * p5Instance.noise(config.blockModVector.value * x * cells.x, config.blockModVector.value * y * cells.y, config.dumbT))
         const background = triDnoise >= config.inflectionVector.value ? 'white' : 'black'
         bwGrid.push({
           background,
@@ -250,7 +255,7 @@ export default function sketch ({ p5Instance, textManager, corpus, config }) {
         })
       }
     }
-    config.dumbT = config.dumbT + config.colorModVector.value
+    config.dumbT = config.dumbT + config.blockModVector.value
     return bwGrid
   }
 

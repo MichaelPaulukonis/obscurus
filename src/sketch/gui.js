@@ -13,18 +13,25 @@ export default class GuiControl {
     gui.add(params, 'p5frameRate').min(1).max(60).step(1).listen()
     gui.add(params, 'captureFrameRate').min(1).max(60).step(1).listen()
 
-    gui.add(params, 'colorFrameRate').min(1).max(1000).step(1)
+    gui.add(params, 'blockFrameRate').min(1).max(1000).step(1)
       .onFinishChange(() => {
-        params.colorFrameReset = true // ugh, no - not every single time!
-        params.colorFrameMod.value = params.colorFrameRate
-        params.colorFrameMod.max = Math.max(params.colorFrameRate, params.colorFrameMod.max)
+        params.blockFrameReset = true // ugh, no - not every single time!
+        params.blockFrameMod.value = params.blockFrameRate
+        params.blockFrameMod.max = Math.max(params.blockFrameRate, params.blockFrameMod.max)
       })
       .listen()
     gui.add(params, 'textFrameRate').min(1).max(1000).step(1)
       .onFinishChange(() => {
-        params.textReset = true
+        params.textFrameReset = true
         params.textFrameMod.value = params.textFrameRate
         params.textFrameMod.max = Math.max(params.textFrameRate, params.textFrameMod.max)
+      })
+      .listen()
+    gui.add(params, 'colorFrameRate').min(1).max(100).step(1)
+      .onFinishChange(() => {
+        params.colorFrameReset = true
+        params.colorFrameMod.value = params.colorFrameRate
+        params.colorFrameMod.max = Math.max(params.colorFrameRate, params.colorFrameMod.max)
       })
       .listen()
 
