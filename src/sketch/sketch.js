@@ -22,7 +22,7 @@ const filenamer = prefix => {
 
 let namer = null
 
-const initialOffset = (img) => ({
+const randomImgOffset = (img) => ({
   x: Math.floor(Math.random() * img.width - config.cellSize),
   y: Math.floor(Math.random() * img.height - config.cellSize)
 })
@@ -37,6 +37,7 @@ export default function sketch ({ p5Instance, textManager, corpus, config }) {
 
   let img = null
   const fonts = {}
+  let canvas = null
 
   p5Instance.preload = () => {
     ['Interstate-Regular-Font'].forEach((font) => {
@@ -49,7 +50,8 @@ export default function sketch ({ p5Instance, textManager, corpus, config }) {
       p5Instance.noiseSeed(config.noiseSeed)
     }
     newText({ config, textManager })
-    p5Instance.createCanvas(config.cellSize * config.cells.x, config.cellSize * config.cells.y)
+    canvas = p5Instance.createCanvas(config.cellSize * config.cells.x, config.cellSize * config.cells.y)
+    canvas.drop(gotFile)
 
     p5Instance.frameRate(config.p5frameRate)
     p5Instance.noStroke()
@@ -64,7 +66,7 @@ export default function sketch ({ p5Instance, textManager, corpus, config }) {
 
   const imageReady = () => {
     img.loadPixels()
-    currentOffset = initialOffset(img)
+    currentOffset = randomImgOffset(img)
     config.imageLoaded = true
   }
 
@@ -73,6 +75,14 @@ export default function sketch ({ p5Instance, textManager, corpus, config }) {
     img = p5Instance.loadImage(filename, imageReady)
   }
 
+  const gotFile = (file) => {
+    if (file && file.type === 'image') {
+      config.imageLoaded = false
+      img = p5Instance.loadImage(file.data, imageReady)
+    } else {
+      console.log('Not an image file!')
+    }
+  }
 
   p5Instance.mouseClicked = () => {
     draw()
@@ -129,12 +139,13 @@ export default function sketch ({ p5Instance, textManager, corpus, config }) {
   }
 
   const draw = () => {
-    if (!config.paused) {
+    if (!config.paused && config.imageLoaded) {
       coreDraw()
     }
   }
   let blockCells = []
   let textCells = []
+  let colorCells = []
 
   const coreDraw = () => {
     let updated = false
@@ -157,11 +168,11 @@ export default function sketch ({ p5Instance, textManager, corpus, config }) {
       updated = true
     }
 
-    if (1 === 1) {
-      const newOffset = getOffset(currentOffset)
-
-      currentOffset = newOffset
-    }
+    // if (1 === 1) {
+    const newOffset = getOffset(currentOffset)
+    colorCells = buildRgbGridCells({ cells: config.cells, cellSize: config.cellSize, offset: newOffset })
+    currentOffset = newOffset
+    // }
 
     const textCheck = Math.random()
     if (textCheck < 0.0001) {
@@ -170,7 +181,7 @@ export default function sketch ({ p5Instance, textManager, corpus, config }) {
       config.textProvider = windowFactory(config.cells)
     }
 
-    paintGrids({ textCells, blockCells })
+    paintGrids({ textCells, blockCells, colorCells })
     if (config.capturing && (updated || config.captureOverride)) {
       config.captureOverride = false
       console.log('capturing frame')
@@ -189,7 +200,7 @@ export default function sketch ({ p5Instance, textManager, corpus, config }) {
     const bloc = textManager.windowMaker(cells.x * cells.x)(startIndex)
     const direction = Math.random() < 0.01 ? -1 : 1
     let index = direction === 1 ? -1 : bloc.length
-    return function * () {
+    return function* () {
       index = direction === 1
         ? (index + direction) % bloc.length
         : index ? index + direction : bloc.length - 1
@@ -202,7 +213,7 @@ export default function sketch ({ p5Instance, textManager, corpus, config }) {
   // TODO:: encapsulate the vectors
   const getOffset = (previousOffset) => {
     let nextOffset = { x: previousOffset.x + vectorX.direction * vectorX.speed, y: previousOffset.y + vectorY.direction * vectorY.speed }
-    vectorX.direction = (nextOffset.x >= img.width - config.cellSize|| nextOffset.x <= 0) ? -vectorX.direction : vectorX.direction
+    vectorX.direction = (nextOffset.x >= img.width - config.cellSize || nextOffset.x <= 0) ? -vectorX.direction : vectorX.direction
     vectorY.direction = (nextOffset.y >= img.height - config.cellSize || nextOffset.y <= 0) ? -vectorY.direction : vectorY.direction
 
     return nextOffset
@@ -263,7 +274,7 @@ export default function sketch ({ p5Instance, textManager, corpus, config }) {
     return textGrid
   }
 
-  const paintGrids = ({ textCells, blockCells }) => {
+  const paintGrids = ({ textCells, blockCells, colorCells }) => {
     p5Instance.textAlign(p5Instance.LEFT, p5Instance.CENTER)
 
     if (config.gridOutline) {
@@ -272,10 +283,23 @@ export default function sketch ({ p5Instance, textManager, corpus, config }) {
       p5Instance.noStroke()
     }
 
+    //
+    // for (let i = 0; i < blockCells.length; i++) {
+    //   const cell = blockCells[i]
+    //   // const color = config.useColor && cell.background === 'white' ?  colorCells[i].background : cell.background
+    //   const color = cell.background
+    //   p5Instance.fill(color)
+    //   p5Instance.rect(cell.x, cell.y, cell.cellSize, cell.cellSize)
+    // }
+
+    let i = 0
     blockCells.forEach(cell => {
-      p5Instance.fill(cell.background)
+      const bkgColor = config.useColor && cell.background === 'white' ? colorCells[i].background : cell.background
+      p5Instance.fill(bkgColor)
       p5Instance.rect(cell.x, cell.y, cell.cellSize, cell.cellSize)
+      i++
     })
+
     p5Instance.fill('black')
     p5Instance.noStroke()
 

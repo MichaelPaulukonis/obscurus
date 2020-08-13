@@ -7,6 +7,7 @@ export default class GuiControl {
     const gui = new dat.GUI({ name: 'OBSCURUS' })
     gui.remember(params)
     gui.add(params, 'paused').listen()
+    gui.add(params, 'useColor').name('color')
     gui.add(params, 'captureLimit').min(10).max(1000).step(1).listen()
 
     gui.add(params, 'p5frameRate').min(1).max(60).step(1).listen()

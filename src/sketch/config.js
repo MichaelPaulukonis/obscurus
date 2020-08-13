@@ -42,6 +42,7 @@ const config = {
   textFrameMod,
   paused: false,
   textProvider: null,
+  useColor: true,
   corpus: [],
   gridOutline: false,
   dumbT: 0,
