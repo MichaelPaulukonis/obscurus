@@ -1,4 +1,4 @@
-import config from "./config"
+import config from './config'
 
 const datestring = () => {
   const d = new Date()
@@ -215,7 +215,7 @@ export default function sketch ({ p5Instance, textManager, corpus, config }) {
     const bloc = textManager.windowMaker(cells.x * cells.x)(startIndex)
     const direction = Math.random() < 0.01 ? -1 : 1
     let index = direction === 1 ? -1 : bloc.length
-    return function* () {
+    return function * () {
       index = direction === 1
         ? (index + direction) % bloc.length
         : index ? index + direction : bloc.length - 1
@@ -227,7 +227,7 @@ export default function sketch ({ p5Instance, textManager, corpus, config }) {
 
   // TODO:: encapsulate the vectors
   const getOffset = (previousOffset) => {
-    let nextOffset = { x: previousOffset.x + vectorX.direction * vectorX.speed, y: previousOffset.y + vectorY.direction * vectorY.speed }
+    const nextOffset = { x: previousOffset.x + vectorX.direction * vectorX.speed, y: previousOffset.y + vectorY.direction * vectorY.speed }
     vectorX.direction = (nextOffset.x >= img.width - config.cellSize || nextOffset.x <= 0) ? -vectorX.direction : vectorX.direction
     vectorY.direction = (nextOffset.y >= img.height - config.cellSize || nextOffset.y <= 0) ? -vectorY.direction : vectorY.direction
 
@@ -319,5 +319,4 @@ export default function sketch ({ p5Instance, textManager, corpus, config }) {
     var pix = img.drawingContext.getImageData(xLoc + offset.x, yLoc + offset.y, 1, 1).data
     return p5Instance.color(pix[0], pix[1], pix[2])
   }
-
 }
