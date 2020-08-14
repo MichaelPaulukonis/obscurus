@@ -59,9 +59,15 @@ export default function sketch ({ p5Instance, textManager, corpus, config }) {
     p5Instance.textAlign(p5Instance.CENTER, p5Instance.CENTER)
     p5Instance.textFont(fonts['Interstate-Regular-Font'])
 
-    setImage('./assets/images/fire.01.jpeg')
+    randomImage()
 
     draw()
+  }
+
+  const randomImage = () => {
+    const img = p5Instance.random(IMAGES)
+    console.log(img)
+    setImage(`./assets/images/${img}`)
   }
 
   const imageReady = () => {
@@ -103,6 +109,10 @@ export default function sketch ({ p5Instance, textManager, corpus, config }) {
     switch (key) {
       case ' ':
         config.paused = !config.paused
+        break
+
+      case 'i':
+        randomImage()
         break
 
       case 'n':
@@ -288,22 +298,13 @@ export default function sketch ({ p5Instance, textManager, corpus, config }) {
       p5Instance.noStroke()
     }
 
-    //
-    // for (let i = 0; i < blockCells.length; i++) {
-    //   const cell = blockCells[i]
-    //   // const color = config.useColor && cell.background === 'white' ?  colorCells[i].background : cell.background
-    //   const color = cell.background
-    //   p5Instance.fill(color)
-    //   p5Instance.rect(cell.x, cell.y, cell.cellSize, cell.cellSize)
-    // }
-
-    let i = 0
-    blockCells.forEach(cell => {
-      const bkgColor = config.useColor && cell.background === 'white' ? colorCells[i].background : cell.background
-      p5Instance.fill(bkgColor)
+    const bkgTarget = config.fillWhite ? 'white' : 'black'
+    for (let i = 0; i < blockCells.length; i++) {
+      const cell = blockCells[i]
+      const color = config.useColor && cell.background === bkgTarget ? colorCells[i].background : cell.background
+      p5Instance.fill(color)
       p5Instance.rect(cell.x, cell.y, cell.cellSize, cell.cellSize)
-      i++
-    })
+    }
 
     p5Instance.fill('black')
     p5Instance.noStroke()

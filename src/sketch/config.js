@@ -55,6 +55,7 @@ const config = {
   paused: false,
   textProvider: null,
   useColor: true,
+  fillWhite: Math.random() < 0.5,
   corpus: [],
   gridOutline: false,
   dumbT: 0,

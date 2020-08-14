@@ -3,8 +3,10 @@ const webpack = require('webpack')
 const Dotenv = require('dotenv-webpack')
 const HtmlWebpackPlugin = require('html-webpack-plugin')
 const CopyWebpackPlugin = require('copy-webpack-plugin')
-// const loader = require('./loadImages.js')
-// const fonts = loader('./assets/fonts')
+const { images, fonts } = require('./loadImages.js')
+
+console.log(JSON.stringify(images))
+console.log(JSON.stringify(fonts))
 
 module.exports = {
   entry: {
@@ -43,13 +45,27 @@ module.exports = {
             }
           }
         ]
+      },
+      {
+        test: /\.(png|jpg|jpeg)$/i,
+        include: [/images/],
+        use: [
+          {
+            loader: 'file-loader',
+            options: {
+              name: 'images/[name].[ext]'
+            }
+          }
+        ]
       }
     ]
   },
   plugins: [
     new Dotenv(),
     new webpack.DefinePlugin({
-      VERSION: JSON.stringify(require('./package.json').version)
+      VERSION: JSON.stringify(require('./package.json').version),
+      IMAGES: JSON.stringify(images),
+      FONTS: JSON.stringify(fonts)
     }),
     new HtmlWebpackPlugin({
       template: path.resolve(__dirname, 'src', 'index.html'),
