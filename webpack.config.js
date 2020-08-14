@@ -3,7 +3,7 @@ const webpack = require('webpack')
 const Dotenv = require('dotenv-webpack')
 const HtmlWebpackPlugin = require('html-webpack-plugin')
 const CopyWebpackPlugin = require('copy-webpack-plugin')
-const { images, fonts } = require('./loadImages.js')
+const { images, fonts } = require('./loadFiles.js')
 
 console.log(JSON.stringify(images))
 console.log(JSON.stringify(fonts))
