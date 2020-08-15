@@ -161,28 +161,28 @@ export default function sketch ({ p5Instance, textManager, corpus, config }) {
   const coreDraw = () => {
     let updated = false
     config.frame += 1
-    if (blockCells.length === 0 || config.blockFrameReset || config.frame - config.previousBlockFrameCount === config.blockFrameRate) {
+    if (blockCells.length === 0 || config.blockFrameReset || config.frame - config.previousBlockFrameCount === Math.round(config.blockFrameMod.value)) {
       config.previousBlockFrameCount = config.frame
       config.blockFrameReset = false
-      config.blockFrameRate = Math.round(config.blockFrameMod.next().value)
+      config.blockFrameMod.next()
       config.blockModVector.next()
       config.inflectionVector.next()
       blockCells = buildGridCells({ cells: config.cells, cellSize: config.cellSize })
       updated = true
     }
-    if (config.textFrameReset || textCells.length === 0 || config.frame - config.previousTextFrameCount === config.textFrameRate) {
+    if (config.textFrameReset || textCells.length === 0 || config.frame - config.previousTextFrameCount === Math.round(config.textFrameMod.value)) {
       config.previousTextFrameCount = config.frame
       config.textFrameReset = false
-      config.textFrameRate = Math.round(config.textFrameMod.next().value)
+      config.textFrameMod.next()
       textCells = buildTextCells({ cells: config.cells, cellSize: config.cellSize, getchar: config.textProvider(config.textFrame) })
       config.textFrame += 1
       updated = true
     }
 
-    if (config.colorFrameReset || colorCells.length === 0 || config.frame - config.previouscolorFrameCount === config.colorFrameRate) {
+    if (config.colorFrameReset || colorCells.length === 0 || config.frame - config.previouscolorFrameCount === Math.round(config.colorFrameMod.value)) {
       config.previouscolorFrameCount = config.frame
       config.colorFrameReset = false
-      config.colorFrameRate = Math.round(config.colorFrameMod.next().value)
+      config.colorFrameMod.next()
       const newOffset = getOffset(currentOffset)
       colorCells = buildRgbGridCells({ cells: config.cells, cellSize: config.cellSize, offset: newOffset })
       currentOffset = newOffset
@@ -215,7 +215,7 @@ export default function sketch ({ p5Instance, textManager, corpus, config }) {
     const bloc = textManager.windowMaker(cells.x * cells.x)(startIndex)
     const direction = Math.random() < 0.01 ? -1 : 1
     let index = direction === 1 ? -1 : bloc.length
-    return function * () {
+    return function* () {
       index = direction === 1
         ? (index + direction) % bloc.length
         : index ? index + direction : bloc.length - 1

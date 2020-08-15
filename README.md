@@ -68,10 +68,30 @@ a script that does each of these, kinda (I built it in `zsh` so YMMV):
 
 ```bash
 mkmp4() {
- ffmpeg -r 30 -f image2 -s 500x500 -i "$1-%06d.png" -vcodec libx264 -crf 17 -pix_fmt yuv420p $1.mp4
+ #  ffmpeg -r 30 -f image2 -s 500x500 -i "$1-%06d.png" -vcodec libx264 -crf 17 -pix_fmt yuv420p $1.mp4
+ # https://hamelot.io/visualization/using-ffmpeg-to-convert-a-set-of-images-into-a-video/
+ # -r = frameRate
+ ffmpeg -r 15 -f image2 -s 500x500 -pattern_type glob -i '*.png' -vcodec libx264 -crf 17 -pix_fmt yuv420p $1.mp4
 }
 
 mkgif() {
   convert -delay 3.33 -loop 0 *.png $1.gif
 }
+
+moveit() {
+  TARGET=~/Downloads/obscur.out/$1
+  mkdir $TARGET
+  mv $1*.png $TARGET
+  pushd $TARGET
+  mkmp4 $1
+  mkgif $1
+  echo $TARGET
+  popd
+}
+```
+
+This is SO CLOSE - but only does the gifs (last found)
+
+```bash
+find [0-9]* -type f -name "[0-9]*.mp4" -or  -name "[0-9]*.gif" | xargs -i cp {} news
 ```

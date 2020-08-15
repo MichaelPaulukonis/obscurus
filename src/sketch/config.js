@@ -3,40 +3,69 @@ import { vector } from './vectorMod'
 const randomHeading = () => Math.random() < 0.5 ? 1 : -1
 const randomArb = (min, max) => Math.random() * (max - min) + min
 
-let defaults = {
-  direction: randomHeading(), // Math.random() p5Instance.random([1, -1]),
-  speed: 0.0001, // so.... would be nice to have THIS change, too
-  min: 0.001, // smooth curve (close up)
-  max: 0.06 // jagged blocks (zoomed out)
+const newVector = (fn = (x) => x) => ({ frameRate, min, max, direction = randomHeading(), speed }) => {
+  const newFrameRate = fn(randomArb(frameRate.min, frameRate.max))
+  return vector({
+    value: newFrameRate,
+    min,
+    max,
+    direction,
+    speed
+  })
 }
-defaults.value = randomArb(defaults.min, defaults.max / 3)
-const blockModVector = vector(defaults)
 
-defaults = {
-  direction: randomHeading(), // Math.random() p5Instance.random([1, -1]),
+const newFrameVector = newVector(Math.round)
+const newModVector = newVector()
+
+const blockModVector = newModVector({
+  frameRate: { min: 0.001, max: 0.02 },
+  direction: randomHeading(),
+  speed: 0.0001,
+  min: 0.001,
+  max: 0.06
+})
+
+const inflectionVector = newFrameVector({
+  frameRate: { min: 100, max: 130 },
+  direction: randomHeading(),
   speed: 0.3,
-  min: 80, // more white
-  max: 170 // more black
-}
-defaults.value = Math.round(randomArb(defaults.min + 20, defaults.max - 40))
-const inflectionVector = vector(defaults)
+  min: 80,
+  max: 170
+})
 
-defaults = {
-  direction: randomHeading(), // Math.random() p5Instance.random([1, -1]),
+const colorModVector = newFrameVector({
+  frameRate: { min: 21, max: 30 },
+  direction: randomHeading(),
   speed: 1,
   min: 1,
   max: 30
-}
-defaults.value = Math.round(randomArb(defaults.min + 20, defaults.max - 40))
-const colorModVector = vector(defaults)
+})
 
-const blockFrameRate = Math.round(randomArb(1, 50))
-const textFrameRate = Math.round(randomArb(1, 60))
-const colorFrameRate = Math.round(randomArb(1, 30))
+const textFrameMod = newFrameVector({
+  frameRate: { min: 1, max: 60 },
+  min: 1,
+  max: 200,
+  speed: 0.2
+})
 
-const blockFrameMod = vector({ value: blockFrameRate, min: 1, max: 60, direction: randomHeading(), mod: 0.3 })
-const textFrameMod = vector({ value: textFrameRate, min: 1, max: 200, direction: randomHeading(), mod: 0.2 })
-const colorFrameMod = vector({ value: colorFrameRate, min: 1, max: 200, direction: randomHeading(), mod: 0.2 })
+const colorFrameMod = newFrameVector({
+  frameRate: { min: 1, max: 30 },
+  min: 1,
+  max: 200,
+  speed: 0.2
+})
+
+// TODO: make a common func for (re)assignment
+// so we can randomly re-gen on-the-fly
+
+// const blockFrameRate = Math.round(randomArb(1, 50))
+// const blockFrameMod = vector({ value: blockFrameRate, min: 1, max: 60, direction: randomHeading(), mod: 0.3 })
+const blockFrameMod = newFrameVector({
+  frameRate: { min: 1, max: 50 },
+  min: 1,
+  max: 60,
+  speed: 0.3
+})
 
 const config = {
   cellSize: 30,
@@ -61,9 +90,6 @@ const config = {
   dumbT: 0,
   frame: 0,
   textFrame: 0,
-  blockFrameRate,
-  textFrameRate,
-  colorFrameRate,
   previousBlockFrameCount: 0,
   previousTextFrameCount: 0,
   previousColorFrameCount: 0,
