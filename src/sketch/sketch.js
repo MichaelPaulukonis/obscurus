@@ -215,7 +215,7 @@ export default function sketch ({ p5Instance, textManager, corpus, config }) {
     const bloc = textManager.windowMaker(cells.x * cells.x)(startIndex)
     const direction = Math.random() < 0.01 ? -1 : 1
     let index = direction === 1 ? -1 : bloc.length
-    return function* () {
+    return function * () {
       index = direction === 1
         ? (index + direction) % bloc.length
         : index ? index + direction : bloc.length - 1

@@ -9,6 +9,10 @@ const textManager = new TextManager()
 let newCorpus = []
 const gc = new GuiControl()
 
+const seed = Math.random()
+gc.params.noiseSeed = seed
+console.log(`seed: ${seed}`)
+
 const theStuff = () => {
   const builder = (p5Instance) => {
     textManager.randomPost = randomPost // uh.... if needed
@@ -23,15 +27,6 @@ const theStuff = () => {
       new P5(builder) // eslint-disable-line no-new
     })
 
-  // let capturer = {}
-  //   capturer = function () {
-  //     return {
-  //       stop: () => { },
-  //       save: () => { },
-  //       start: () => { },
-  //       capture: () => { }
-  //     }
-  //   }
   launch()
 }
 

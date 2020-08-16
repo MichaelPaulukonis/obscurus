@@ -11,11 +11,14 @@ export default class GuiControl {
     gui.add(params, 'fillWhite').name('Fill white').listen()
     gui.add(params, 'captureLimit').min(10).max(1000).step(1).listen()
 
+    gui.add(params, 'resetVectors').name('RandomizeVecs')
+
     gui.add(params, 'p5frameRate').min(1).max(60).step(1).listen()
     gui.add(params, 'captureFrameRate').min(1).max(60).step(1).listen()
 
     gui.add(params.blockFrameMod, 'value').min(1).max(1000).step(1).name('blockFrameRate')
       .onFinishChange(() => {
+        console.log('blockFrame finish')
         params.blockFrameReset = true // ugh, no - not every single time! only if it "should have" happened (shorter)
         params.blockFrameMod.max = Math.max(params.blockFrameMod.value, params.blockFrameMod.max)
       })

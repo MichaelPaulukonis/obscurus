@@ -13,6 +13,13 @@ const vector = ({
     self.value = newValue
     return self
   }
+  self.set = vec => {
+    self.min = vec.min
+    self.max = vec.max
+    self.diretion = vec.direction
+    self.speed = vec.speed
+    self.value = vec.value
+  }
   return self
 }
 

@@ -1,71 +1,13 @@
-import { vector } from './vectorMod'
+import out from './setupVectors'
 
-const randomHeading = () => Math.random() < 0.5 ? 1 : -1
-const randomArb = (min, max) => Math.random() * (max - min) + min
-
-const newVector = (fn = (x) => x) => ({ frameRate, min, max, direction = randomHeading(), speed }) => {
-  const newFrameRate = fn(randomArb(frameRate.min, frameRate.max))
-  return vector({
-    value: newFrameRate,
-    min,
-    max,
-    direction,
-    speed
-  })
-}
-
-const newFrameVector = newVector(Math.round)
-const newModVector = newVector()
-
-const blockModVector = newModVector({
-  frameRate: { min: 0.001, max: 0.02 },
-  direction: randomHeading(),
-  speed: 0.0001,
-  min: 0.001,
-  max: 0.06
-})
-
-const inflectionVector = newFrameVector({
-  frameRate: { min: 100, max: 130 },
-  direction: randomHeading(),
-  speed: 0.3,
-  min: 80,
-  max: 170
-})
-
-const colorModVector = newFrameVector({
-  frameRate: { min: 21, max: 30 },
-  direction: randomHeading(),
-  speed: 1,
-  min: 1,
-  max: 30
-})
-
-const textFrameMod = newFrameVector({
-  frameRate: { min: 1, max: 60 },
-  min: 1,
-  max: 200,
-  speed: 0.2
-})
-
-const colorFrameMod = newFrameVector({
-  frameRate: { min: 1, max: 30 },
-  min: 1,
-  max: 200,
-  speed: 0.2
-})
-
-// TODO: make a common func for (re)assignment
-// so we can randomly re-gen on-the-fly
-
-// const blockFrameRate = Math.round(randomArb(1, 50))
-// const blockFrameMod = vector({ value: blockFrameRate, min: 1, max: 60, direction: randomHeading(), mod: 0.3 })
-const blockFrameMod = newFrameVector({
-  frameRate: { min: 1, max: 50 },
-  min: 1,
-  max: 60,
-  speed: 0.3
-})
+const {
+  blockFrameMod,
+  blockModVector,
+  colorFrameMod,
+  inflectionVector,
+  textFrameMod,
+  randomizeVectors
+} = out
 
 const config = {
   cellSize: 30,
@@ -77,10 +19,17 @@ const config = {
   captureFrameRate: 20,
   inflectionVector,
   blockModVector,
-  colorModVector,
   blockFrameMod,
-  textFrameMod,
   colorFrameMod,
+  textFrameMod,
+  resetVectors: function () {
+    const newVecs = randomizeVectors()
+    this.blockFrameMod.set(newVecs.blockFrameMod)
+    this.blockModVector.set(newVecs.blockModVector)
+    this.colorFrameMod.set(newVecs.colorFrameMod)
+    this.inflectionVector.set(newVecs.inflectionVector)
+    // TODO: need to set the new data that also happens in the "onFinishChange" funcs. doh!
+  },
   paused: false,
   textProvider: null,
   useColor: true,
