@@ -1,3 +1,6 @@
+import randomPost from './tumblr-random.js'
+import defaultCorpus from './corpus.default'
+
 export default class TextManager {
   constructor (text) {
     const defaultText = 'These are the pearls that were his eyes'
@@ -5,6 +8,13 @@ export default class TextManager {
     let charIndex = 0
     let wordIndex = 0
     const self = this
+    self.randomPost = randomPost
+    self.corpus = [...defaultCorpus]
+    self.redefineCorpus = () =>
+      randomPost()
+        .then((texts) => {
+          self.corpus = [...defaultCorpus, ...texts]
+        })
     self.getchar = function () {
       const c = self.w.charAt(charIndex)
       charIndex = (charIndex + 1) % self.w.length

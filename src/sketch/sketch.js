@@ -31,9 +31,8 @@ let currentOffset = {}
 const vectorX = { direction: 1, speed: 2 }
 const vectorY = { direction: 1, speed: 1 }
 
-export default function sketch ({ p5Instance, textManager, corpus, config }) {
+export default function sketch ({ p5Instance, textManager, config }) {
   p5Instance.disableFriendlyErrors = true
-  config.corpus = corpus
 
   let img = null
   const fonts = {}
@@ -144,7 +143,7 @@ export default function sketch ({ p5Instance, textManager, corpus, config }) {
   }
 
   const newText = ({ config, textManager }) => {
-    textManager.setText(p5Instance.random(config.corpus))
+    textManager.setText(p5Instance.random(textManager.corpus))
     config.textProvider = windowFactory(config.cells)
     config.textFrameReset = true
   }
