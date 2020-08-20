@@ -1,5 +1,3 @@
-import config from './config'
-
 const datestring = () => {
   const d = new Date()
   const year = d.getFullYear()
@@ -22,9 +20,9 @@ const filenamer = prefix => {
 
 let namer = null
 
-const randomImgOffset = (img) => ({
-  x: Math.floor(Math.random() * img.width - config.cellSize),
-  y: Math.floor(Math.random() * img.height - config.cellSize)
+const randomImgOffset = (img, cellSize) => ({
+  x: Math.floor(Math.random() * img.width - cellSize),
+  y: Math.floor(Math.random() * img.height - cellSize)
 })
 
 let currentOffset = {}
@@ -47,8 +45,16 @@ export default function sketch ({ p5Instance, textManager, config }) {
   p5Instance.setup = () => {
     if (config.noiseSeed) {
       p5Instance.noiseSeed(config.noiseSeed)
+      p5Instance.randomSeed(config.noiseSeed)
     }
     newText({ config, textManager })
+    setupCanvas()
+    randomImage()
+
+    draw()
+  }
+
+  const setupCanvas = () => {
     canvas = p5Instance.createCanvas(config.cellSize * config.cells.x, config.cellSize * config.cells.y)
     canvas.drop(gotFile)
 
@@ -57,10 +63,6 @@ export default function sketch ({ p5Instance, textManager, config }) {
     p5Instance.textSize(config.textSize)
     p5Instance.textAlign(p5Instance.CENTER, p5Instance.CENTER)
     p5Instance.textFont(fonts['Interstate-Regular-Font'])
-
-    randomImage()
-
-    draw()
   }
 
   const randomImage = () => {
@@ -71,7 +73,7 @@ export default function sketch ({ p5Instance, textManager, config }) {
 
   const imageReady = () => {
     img.loadPixels()
-    currentOffset = randomImgOffset(img)
+    currentOffset = randomImgOffset(img, config.cellSize)
     config.colorFrameReset = true
     config.imageLoaded = true
   }
@@ -160,7 +162,10 @@ export default function sketch ({ p5Instance, textManager, config }) {
   const coreDraw = () => {
     let updated = false
     config.frame += 1
-    if (blockCells.length === 0 || config.blockFrameReset || config.frame - config.previousBlockFrameCount === Math.round(config.blockFrameMod.value)) {
+    if (config.canvasReset) {
+      setupCanvas()
+    }
+    if (blockCells.length === 0 || config.blockFrameReset || config.canvasReset || config.frame - config.previousBlockFrameCount === Math.round(config.blockFrameMod.value)) {
       config.previousBlockFrameCount = config.frame
       config.blockFrameReset = false
       config.blockFrameMod.next()
@@ -169,7 +174,7 @@ export default function sketch ({ p5Instance, textManager, config }) {
       blockCells = buildGridCells({ cells: config.cells, cellSize: config.cellSize })
       updated = true
     }
-    if (config.textFrameReset || textCells.length === 0 || config.frame - config.previousTextFrameCount === Math.round(config.textFrameMod.value)) {
+    if (config.textFrameReset || textCells.length === 0 || config.canvasReset || config.frame - config.previousTextFrameCount === Math.round(config.textFrameMod.value)) {
       config.previousTextFrameCount = config.frame
       config.textFrameReset = false
       config.textFrameMod.next()
@@ -178,7 +183,7 @@ export default function sketch ({ p5Instance, textManager, config }) {
       updated = true
     }
 
-    if (config.colorFrameReset || colorCells.length === 0 || config.frame - config.previouscolorFrameCount === Math.round(config.colorFrameMod.value)) {
+    if (config.colorFrameReset || colorCells.length === 0 || config.canvasReset || config.frame - config.previouscolorFrameCount === Math.round(config.colorFrameMod.value)) {
       config.previouscolorFrameCount = config.frame
       config.colorFrameReset = false
       config.colorFrameMod.next()
@@ -206,12 +211,13 @@ export default function sketch ({ p5Instance, textManager, config }) {
         p5Instance.frameRate(config.p5frameRate)
       }
     }
+    config.canvasReset = false
   }
 
   p5Instance.draw = draw
 
   const windowFactory = (cells) => (startIndex) => {
-    const bloc = textManager.windowMaker(cells.x * cells.x)(startIndex)
+    const bloc = textManager.windowMaker(cells.x * cells.y)(startIndex)
     const direction = Math.random() < 0.01 ? -1 : 1
     let index = direction === 1 ? -1 : bloc.length
     return function * () {

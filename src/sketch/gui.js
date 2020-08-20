@@ -3,13 +3,23 @@ import config from './config'
 
 export default class GuiControl {
   constructor () {
-    const params = Object.assign({}, config)
+    const params = Object.assign({}, config())
     const gui = new dat.GUI({ name: 'OBSCURUS' })
     gui.remember(params)
     gui.add(params, 'paused').listen()
     gui.add(params, 'useColor').name('color')
     gui.add(params, 'fillWhite').name('Fill white').listen()
     gui.add(params, 'captureLimit').min(10).max(1000).step(1).listen()
+
+    gui.add(params.cells, 'x').min(1).max(40).step(1)
+      .onFinishChange(() => {
+        params.canvasReset = true
+      }).listen()
+    gui.add(params.cells, 'y').min(1).max(40).step(1)
+      .onFinishChange(() => {
+        params.canvasReset = true
+      }).listen()
+    gui.add(params, 'cellSize').min(8).max(40).step(1).listen()
 
     gui.add(params, 'resetVectors').name('RandomizeVecs')
     gui.add(params, 'redefineCorpus').name('new texts')

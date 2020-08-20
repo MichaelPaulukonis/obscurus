@@ -93,5 +93,10 @@ moveit() {
 This is SO CLOSE - but only does the gifs (last found)
 
 ```bash
-find [0-9]* -type f -name "[0-9]*.mp4" -or  -name "[0-9]*.gif" | xargs -i cp {} news
+find [0-9]* -type f -name "[0-9]*.mp4" -or -name "[0-9]*.gif" -exec cp -n {} news \;
+```
+
+```bash
+setopt extendedglob
+ls [0-9]##-[0-9]##.png
 ```

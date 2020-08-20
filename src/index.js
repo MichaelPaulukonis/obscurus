@@ -2,13 +2,27 @@ import P5 from 'p5/lib/p5.min.js'
 import sketch from './sketch'
 import TextManager from './sketch/TextManager'
 import GuiControl from './sketch/gui'
+import seedrandom from 'seedrandom'
+
+const parseParams = () => {
+  const params = (new URL(document.location)).searchParams
+  const seedString = params.get('seed') // is the string "Jonathan Smith".
+  const seed = parseFloat(seedString) || null
+  return {
+    seed
+  }
+}
+
+const seeder = () => [...Array(10)].map(_ => (~~(Math.random() * 36)).toString(36)).join('')
+const queryParams = parseParams()
+
+const seed = queryParams.seed ? queryParams.seed : seeder()
+seedrandom(seed, { global: true })
+console.log(`seed: ${seed} => ${Math.random()}`)
 
 const textManager = new TextManager()
 const gc = new GuiControl()
-
-const seed = Math.random()
 gc.params.noiseSeed = seed
-console.log(`seed: ${seed}`)
 gc.params.redefineCorpus = textManager.redefineCorpus
 
 const theStuff = () => {
@@ -17,7 +31,7 @@ const theStuff = () => {
   }
 
   const launch = () => textManager.redefineCorpus()
-    .then((_) => {
+    .finally((_) => {
       new P5(builder) // eslint-disable-line no-new
     })
 
