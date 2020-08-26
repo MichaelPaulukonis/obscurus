@@ -7,10 +7,20 @@ usage()
     echo "usage: moveit [[[-f file ] | [-h]]"
 }
 
+prefix() {
+    for file in [0-9]##-[0-9]##.png
+    do
+        echo "${file%-*.png}"
+    done | sort -u
+}
+
 list() {
   setopt extendedglob
   pushd ~/Downloads
-  ls [0-9]##-[0-9]##.png
+  prefix | while read prefix
+  do
+    echo ${prefix}
+  done
   popd
 }
 
@@ -28,6 +38,9 @@ mkgif() {
 moveit() {
   mkdir $TARGET
   mv $FILENAME*.png $TARGET
+}
+
+buildit() {
   pushd $TARGET
   mkmp4 $FILENAME
 #   mkgif $1
@@ -37,8 +50,10 @@ moveit() {
 
 collect() {
   pushd $TARGET_ROOT
-  find [0-9]* -type f -name "[0-9]*.mp4" -exec cp -n {} news \;
-  find [0-9]* -type f -name "[0-9]*.gif" -exec cp -n {} news \;
+  # find [0-9]* -type f -name "[0-9]*.mp4" -exec cp -n {} news \;
+  # find [0-9]* -type f -name "[0-9]*.gif" -exec cp -n {} news \;
+  find [0-9]* -type f \( -name "[0-9]*.gif" -o -name "[0-9]*.mp4" \) -exec cp -n {} news \;
+
   popd
 }
 
@@ -48,28 +63,36 @@ SOURCE=~/Downloads
 TARGET_ROOT=$SOURCE/obscur.out
 FILENAME=
 
+# TODO: a boolean-flag (?) to create gif and/or mp4
+
 while [ "$1" != "" ]; do
-    case $1 in
+    case $1 in      
         -f | --file )           shift
                                 FILENAME=$1
+                                TARGET=$TARGET_ROOT/$FILENAME
                                 ;;
-        -h | --help )           usage
+        -b | --build )          buildit
                                 exit
                                 ;;
+        -m | --move )           moveit
+                                exit
+                                ;;                                                              
         -l | --list )           list
                                 exit  
                                 ;;
         -c | --collect )        collect
                                 exit  
-                                ;;                                                                
+                                ;;
+        -h | --help )           usage
+                                exit
+                                ;;                                                                                            
         * )                     usage
                                 exit 1
     esac
     shift
 done
 
-TARGET=$TARGET_ROOT/$FILENAME
-
 echo $TARGET
 
-# moveit $FILENAME
+moveit
+buildit
