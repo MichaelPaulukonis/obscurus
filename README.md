@@ -37,6 +37,14 @@ Just a nice source of noise for the black-n-white obscuror
 - https://stackoverflow.com/questions/48234696/how-to-put-a-gif-with-canvas
 - https://creative-coding.decontextualize.com/video/
 
+## random images from somewhere else
+ - https://www.npmjs.com/package/picsum-photos
+  - Since you can selet by ID and set various parameters, there could be some programmatic variety
+  - AND if the randomness is seeded by the text, .... there's a relationship (oblique tho it may be)
+- https://www.npmjs.com/package/random-image-js
+- https://www.npmjs.com/package/random-img
+- https://github.com/dherault/aquarelle
+
 ## Saving frames and animations
 
 - you know, one could just save the array of text and images and export those for re-generation server-side
@@ -94,6 +102,8 @@ This is SO CLOSE - but only does the gifs (last found)
 
 ```bash
 find [0-9]* -type f -name "[0-9]*.mp4" -or -name "[0-9]*.gif" -exec cp -n {} news \;
+find [0-9]* -type f -name "[0-9]*.mp4" -exec cp -n {} news \;
+
 ```
 
 ```bash

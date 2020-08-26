@@ -5,7 +5,6 @@ const randomizeVectors = () => {
   const randomArb = (min, max) => Math.random() * (max - min) + min
 
   const newVector = (fn = (x) => x) => ({ frameRate, min, max, direction = randomHeading(), speed }) => {
-    console.log('calling random)')
     const newFrameRate = fn(randomArb(frameRate.min, frameRate.max))
     return vector({
       value: newFrameRate,

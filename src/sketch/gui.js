@@ -9,14 +9,14 @@ export default class GuiControl {
     gui.add(params, 'paused').listen()
     gui.add(params, 'useColor').name('color')
     gui.add(params, 'fillWhite').name('Fill white').listen()
-    gui.add(params, 'captureLimit').min(10).max(1000).step(1).listen()
+    gui.add(params, 'captureLimit').min(10).max(1000).step(10).listen()
 
     gui.add(params.cells, 'x').min(1).max(40).step(1)
-      .onFinishChange(() => {
+      .onChange(() => {
         params.canvasReset = true
       }).listen()
     gui.add(params.cells, 'y').min(1).max(40).step(1)
-      .onFinishChange(() => {
+      .onChange(() => {
         params.canvasReset = true
       }).listen()
     gui.add(params, 'cellSize').min(8).max(40).step(1).listen()

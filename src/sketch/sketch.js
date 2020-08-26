@@ -201,7 +201,8 @@ export default function sketch ({ p5Instance, textManager, config }) {
     }
 
     paintGrids({ textCells, blockCells, colorCells })
-    if (config.capturing && (updated || config.captureOverride)) {
+    // if (config.capturing && (updated || config.captureOverride)) {
+    if (config.capturing || config.captureOverride) {
       config.captureOverride = false
       console.log('capturing frame')
       p5Instance.saveCanvas(namer(), 'png')
@@ -317,9 +318,6 @@ export default function sketch ({ p5Instance, textManager, config }) {
     textCells.forEach(cell => p5Instance.text(cell.text, cell.x, cell.y))
   }
 
-  // average code based on http://stackoverflow.com/a/12408627/41153
-  // this is likely to fail if xLoc,yLoc is with pixSize of width,height
-  // but works for what I'm currently doing....
   const getColor = (xLoc, yLoc, offset) => {
     var pix = img.drawingContext.getImageData(xLoc + offset.x, yLoc + offset.y, 1, 1).data
     return p5Instance.color(pix[0], pix[1], pix[2])

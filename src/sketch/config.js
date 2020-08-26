@@ -52,7 +52,7 @@ const config = () => {
     capturing: false,
     captureOverride: false,
     captureCount: 0,
-    captureLimit: 100,
+    captureLimit: 200,
     redefineCorpus: () => { }
   }
 }

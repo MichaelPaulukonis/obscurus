@@ -4,6 +4,8 @@ import TextManager from './sketch/TextManager'
 import GuiControl from './sketch/gui'
 import seedrandom from 'seedrandom'
 
+console.log(`Version: ${VERSION}`)
+
 const parseParams = () => {
   const params = (new URL(document.location)).searchParams
   const seedString = params.get('seed') // is the string "Jonathan Smith".
