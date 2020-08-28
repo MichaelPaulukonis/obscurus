@@ -15,46 +15,86 @@ prefix() {
 }
 
 list() {
-  setopt extendedglob
-  pushd ~/Downloads
-  prefix | while read prefix
-  do
-    echo ${prefix}
-  done
-  popd
+    setopt extendedglob
+    pushd ~/Downloads
+    prefix | while read p
+    do
+        echo ${p}
+    done
+    popd
+}
+
+processAll() {
+    list | while read p
+    do
+        echo "processing ${p} ..."
+        # setFilename $p
+        # FILENAME=$1
+        # TARGET=$TARGET_ROOT/$FILENAME
+        # echo "filename: $FILENAME target: $TARGET"
+        moveitNew $p $TARGET_ROOT/$p
+        builditNew $p $TARGET_ROOT/$p
+    done
+    # collect
 }
 
 mkmp4() {
- #  ffmpeg -r 30 -f image2 -s 500x500 -i "$1-%06d.png" -vcodec libx264 -crf 17 -pix_fmt yuv420p $1.mp4
- # https://hamelot.io/visualization/using-ffmpeg-to-convert-a-set-of-images-into-a-video/
- # -r = frameRate
- ffmpeg -r 15 -f image2 -s 500x500 -pattern_type glob -i '*.png' -vcodec libx264 -crf 17 -pix_fmt yuv420p $1.mp4
+    #  ffmpeg -r 30 -f image2 -s 500x500 -i "$1-%06d.png" -vcodec libx264 -crf 17 -pix_fmt yuv420p $1.mp4
+    # https://hamelot.io/visualization/using-ffmpeg-to-convert-a-set-of-images-into-a-video/
+    # -r = frameRate
+    ffmpeg -r 15 -f image2 -s 500x500 -pattern_type glob -i '*.png' -vcodec libx264 -crf 17 -pix_fmt yuv420p $1.mp4
 }
 
 mkgif() {
-  convert -delay 3.33 -loop 0 *.png $1.gif
+    convert -delay 3.33 -loop 0 *.png $1.gif
 }
 
 moveit() {
-  mkdir $TARGET
-  mv $FILENAME*.png $TARGET
+    mkdir $TARGET
+    mv $FILENAME*.png $TARGET
+}
+
+moveitNew() {
+    FILE=$1
+    TARG=$2
+    echo "target: $TARG filename: $FILE"
+    mkdir $TARG
+    pushd $SOURCE
+    mv $FILE*.png $TARG
+    popd
 }
 
 buildit() {
-  pushd $TARGET
-  mkmp4 $FILENAME
-#   mkgif $1
-  echo "open $TARGET/$FILENAME.mp4"
-  popd
+    pushd $TARGET
+    mkmp4 $FILENAME
+    #   mkgif $1
+    echo "open $TARGET/$FILENAME.mp4" 
+    popd
+}
+
+builditNew() {
+    FILE=$1
+    TARG=$2
+    pushd $TARG
+    mkmp4 $FILE
+    #   mkgif $1
+    echo "open $TARG/$FILE.mp4"
+    popd
 }
 
 collect() {
-  pushd $TARGET_ROOT
-  # find [0-9]* -type f -name "[0-9]*.mp4" -exec cp -n {} news \;
-  # find [0-9]* -type f -name "[0-9]*.gif" -exec cp -n {} news \;
-  find [0-9]* -type f \( -name "[0-9]*.gif" -o -name "[0-9]*.mp4" \) -exec cp -n {} news \;
+    pushd $TARGET_ROOT
+    # find [0-9]* -type f -name "[0-9]*.mp4" -exec cp -n {} news \;
+    # find [0-9]* -type f -name "[0-9]*.gif" -exec cp -n {} news \;
+    find [0-9]* -type f \( -name "[0-9]*.gif" -o -name "[0-9]*.mp4" \) -exec cp -n {} news \;
+    
+    popd
+}
 
-  popd
+setFilename() {
+    FILENAME=$1
+    TARGET=$TARGET_ROOT/$FILENAME
+    echo "filename: $FILENAME target: $TARGET"
 }
 
 ## MAIN
@@ -66,33 +106,47 @@ FILENAME=
 # TODO: a boolean-flag (?) to create gif and/or mp4
 
 while [ "$1" != "" ]; do
-    case $1 in      
-        -f | --file )           shift
-                                FILENAME=$1
-                                TARGET=$TARGET_ROOT/$FILENAME
-                                ;;
-        -b | --build )          buildit
-                                exit
-                                ;;
-        -m | --move )           moveit
-                                exit
-                                ;;                                                              
-        -l | --list )           list
-                                exit  
-                                ;;
-        -c | --collect )        collect
-                                exit  
-                                ;;
-        -h | --help )           usage
-                                exit
-                                ;;                                                                                            
-        * )                     usage
-                                exit 1
+    case $1 in
+        -a | --all )
+            processAll
+            exit
+        ;;
+        -f | --file )
+            shift
+            setFilename $1
+            # FILENAME=$1
+            # TARGET=$TARGET_ROOT/$FILENAME
+        ;;
+        -b | --build )
+            buildit
+            exit
+        ;;
+        -m | --move )
+            moveit
+            exit
+        ;;
+        -l | --list )
+            list
+            exit
+        ;;
+        -c | --collect )
+            collect
+            exit
+        ;;
+        -h | --help )
+            usage
+            exit
+        ;;
+        * )
+            usage
+            exit 1
     esac
     shift
 done
 
 echo $TARGET
+
+# default action
 
 moveit
 buildit

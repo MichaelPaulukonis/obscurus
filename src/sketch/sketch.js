@@ -201,8 +201,8 @@ export default function sketch ({ p5Instance, textManager, config }) {
     }
 
     paintGrids({ textCells, blockCells, colorCells })
-    // if (config.capturing && (updated || config.captureOverride)) {
-    if (config.capturing || config.captureOverride) {
+    if (config.capturing && (updated || config.captureOverride)) {
+    // if (config.capturing || config.captureOverride) {
       config.captureOverride = false
       console.log('capturing frame')
       p5Instance.saveCanvas(namer(), 'png')
