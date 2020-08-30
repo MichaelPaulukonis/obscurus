@@ -1,5 +1,20 @@
 # a thing
 
+## TODO: what it does and why it's called OBSCURUS
+
+the text is both obscure and obscured
+
+## Roadmap
+
+ - switch between color/black and white
+ - extend B&W to grayscale (rolling out from the inflection point)
+ - Add colors? Simple web colors - blue, yellow, black, red?
+   - Is this pointless, or pointful?
+ - ability to select from texts
+   - add text(s)
+ - re-randomize location of color in image
+   - better/different movement
+
 ## some plans
 
 - obtain a gif (at random)
@@ -72,41 +87,6 @@ ffmpeg -r 30 -f image2 -s 500x500 -i "20200802210728-%06d.png" -vcodec libx264 -
 convert -delay 3.33 -loop 0 *.png output.gif
 ```
 
-a script that does each of these, kinda (I built it in `zsh` so YMMV):
+#### scripting
 
-```bash
-mkmp4() {
- #  ffmpeg -r 30 -f image2 -s 500x500 -i "$1-%06d.png" -vcodec libx264 -crf 17 -pix_fmt yuv420p $1.mp4
- # https://hamelot.io/visualization/using-ffmpeg-to-convert-a-set-of-images-into-a-video/
- # -r = frameRate
- ffmpeg -r 15 -f image2 -s 500x500 -pattern_type glob -i '*.png' -vcodec libx264 -crf 17 -pix_fmt yuv420p $1.mp4
-}
-
-mkgif() {
-  convert -delay 3.33 -loop 0 *.png $1.gif
-}
-
-moveit() {
-  TARGET=~/Downloads/obscur.out/$1
-  mkdir $TARGET
-  mv $1*.png $TARGET
-  pushd $TARGET
-  mkmp4 $1
-  mkgif $1
-  echo $TARGET
-  popd
-}
-```
-
-This is SO CLOSE - but only does the gifs (last found)
-
-```bash
-find [0-9]* -type f -name "[0-9]*.mp4" -or -name "[0-9]*.gif" -exec cp -n {} news \;
-find [0-9]* -type f -name "[0-9]*.mp4" -exec cp -n {} news \;
-
-```
-
-```bash
-setopt extendedglob
-ls [0-9]##-[0-9]##.png
-```
+See `tools/obstool` (which uses my local assumptions, so update for your use)

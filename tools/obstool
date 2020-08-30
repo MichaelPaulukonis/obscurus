@@ -2,40 +2,34 @@
 
 # OBSCUR - a script to move downloaded OBSCURUS images and build an MP4 and/or GIF
 
+SOURCE=~/Downloads
+TARGET_ROOT=$SOURCE/obscur.out
+FILENAME=
+
 usage()
 {
     echo "usage: moveit [[[-f file ] | [-h]]"
 }
 
-prefix() {
-    for file in [0-9]##-[0-9]##.png
-    do
-        echo "${file%-*.png}"
-    done | sort -u
-}
-
-list() {
+list()
+{
     setopt extendedglob
-    pushd ~/Downloads
-    prefix | while read p
-    do
-        echo ${p}
-    done
+    pushd $1
+    local files=([0-9]##-[0-9]##.png)
     popd
+    prefixes=($(printf "%s\n" "${files[@]%-*.png}" | sort -u | tr '\n' ' '))
 }
 
 processAll() {
-    list | while read p
+    list $SOURCE
+    print "prefixCount: $#prefixes"
+    for p in $prefixes
     do
         echo "processing ${p} ..."
-        # setFilename $p
-        # FILENAME=$1
-        # TARGET=$TARGET_ROOT/$FILENAME
-        # echo "filename: $FILENAME target: $TARGET"
         moveitNew $p $TARGET_ROOT/$p
         builditNew $p $TARGET_ROOT/$p
     done
-    # collect
+    collect
 }
 
 mkmp4() {
@@ -49,11 +43,6 @@ mkgif() {
     convert -delay 3.33 -loop 0 *.png $1.gif
 }
 
-moveit() {
-    mkdir $TARGET
-    mv $FILENAME*.png $TARGET
-}
-
 moveitNew() {
     FILE=$1
     TARG=$2
@@ -61,14 +50,6 @@ moveitNew() {
     mkdir $TARG
     pushd $SOURCE
     mv $FILE*.png $TARG
-    popd
-}
-
-buildit() {
-    pushd $TARGET
-    mkmp4 $FILENAME
-    #   mkgif $1
-    echo "open $TARGET/$FILENAME.mp4" 
     popd
 }
 
@@ -99,9 +80,7 @@ setFilename() {
 
 ## MAIN
 
-SOURCE=~/Downloads
-TARGET_ROOT=$SOURCE/obscur.out
-FILENAME=
+
 
 # TODO: a boolean-flag (?) to create gif and/or mp4
 
@@ -114,8 +93,6 @@ while [ "$1" != "" ]; do
         -f | --file )
             shift
             setFilename $1
-            # FILENAME=$1
-            # TARGET=$TARGET_ROOT/$FILENAME
         ;;
         -b | --build )
             buildit
@@ -126,7 +103,8 @@ while [ "$1" != "" ]; do
             exit
         ;;
         -l | --list )
-            list
+            list $SOURCE
+            print $prefixes
             exit
         ;;
         -c | --collect )
