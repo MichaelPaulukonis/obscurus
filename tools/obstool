@@ -5,10 +5,30 @@
 SOURCE=~/Downloads
 TARGET_ROOT=$SOURCE/obscur.out
 FILENAME=
+MAKE_GIF=false
 
 usage()
 {
-    echo "usage: moveit [[[-f file ] | [-h]]"
+cat << _EOF_
+Utilities for OBSCURUS output
+Moves images into associated folders and build gifs or mp4 files
+NOTE: gif-construction takes a looooong time
+
+options
+
+  -l | --list   list unique prefixes (that will be single animations)
+
+  -f | --file   Filename to process
+
+  -b | --build  construct image
+
+  -m | --move   move files to destination folder
+
+  -c | --collect  collect animations from existing folders (won't overwrite)
+
+  -h | --help   print this file
+
+_EOF_
 }
 
 list()
@@ -26,8 +46,8 @@ processAll() {
     for p in $prefixes
     do
         echo "processing ${p} ..."
-        moveitNew $p $TARGET_ROOT/$p
-        builditNew $p $TARGET_ROOT/$p
+        moveit $p $TARGET_ROOT/$p
+        buildit $p $TARGET_ROOT/$p
     done
     collect
 }
@@ -43,7 +63,7 @@ mkgif() {
     convert -delay 3.33 -loop 0 *.png $1.gif
 }
 
-moveitNew() {
+moveit() {
     FILE=$1
     TARG=$2
     echo "target: $TARG filename: $FILE"
@@ -53,12 +73,15 @@ moveitNew() {
     popd
 }
 
-builditNew() {
+buildit() {
     FILE=$1
     TARG=$2
     pushd $TARG
     mkmp4 $FILE
-    #   mkgif $1
+    if $MAKEGIF ; then
+        mkgif $FILE
+        echo "chrome $TARG/$FILE.gif"
+    fi
     echo "open $TARG/$FILE.mp4"
     popd
 }
@@ -86,6 +109,9 @@ setFilename() {
 
 while [ "$1" != "" ]; do
     case $1 in
+        -g || --gif )
+            $MAKE_GIF = true
+        ;;
         -a | --all )
             processAll
             exit
@@ -95,11 +121,11 @@ while [ "$1" != "" ]; do
             setFilename $1
         ;;
         -b | --build )
-            buildit
+            buildit $FILENAME $TARGET_ROOT/$FILENAME
             exit
         ;;
         -m | --move )
-            moveit
+            moveit $FILENAME $TARGET_ROOT/$FILENAME
             exit
         ;;
         -l | --list )
@@ -126,5 +152,5 @@ echo $TARGET
 
 # default action
 
-moveit
-buildit
+moveit $FILENAME $TARGET_ROOT/$FILENAME
+buildit $FILENAME $TARGET_ROOT/$FILENAME
