@@ -20,19 +20,12 @@ const filenamer = prefix => {
 
 let namer = null
 
-const randomImgOffset = (img, cellSize) => ({
-  x: Math.floor(Math.random() * img.width - cellSize),
-  y: Math.floor(Math.random() * img.height - cellSize)
-})
-
-let currentOffset = {}
 const vectorX = { direction: 1, speed: 2 }
 const vectorY = { direction: 1, speed: 1 }
 
 export default function sketch ({ p5Instance, textManager, config }) {
   p5Instance.disableFriendlyErrors = true
 
-  let img = null
   const fonts = {}
   let canvas = null
 
@@ -66,27 +59,27 @@ export default function sketch ({ p5Instance, textManager, config }) {
   }
 
   const randomImage = () => {
-    const img = p5Instance.random(IMAGES)
-    console.log(img)
-    setImage(`./assets/images/${img}`)
+    const libraryImage = p5Instance.random(IMAGES)
+    console.log(libraryImage)
+    setImage(`./assets/images/${libraryImage}`)
   }
 
   const imageReady = () => {
-    img.loadPixels()
-    currentOffset = randomImgOffset(img, config.cellSize)
+    config.img.loadPixels()
+    config.offsetGrid()
     config.colorFrameReset = true
     config.imageLoaded = true
   }
 
   const setImage = (filename) => {
     config.imageLoaded = false
-    img = p5Instance.loadImage(filename, imageReady)
+    config.img = p5Instance.loadImage(filename, imageReady)
   }
 
   const gotFile = (file) => {
     if (file && file.type === 'image') {
       config.imageLoaded = false
-      img = p5Instance.loadImage(file.data, imageReady)
+      config.img = p5Instance.loadImage(file.data, imageReady)
     } else {
       console.log('Not an image file!')
     }
@@ -187,9 +180,9 @@ export default function sketch ({ p5Instance, textManager, config }) {
       config.previouscolorFrameCount = config.frame
       config.colorFrameReset = false
       config.colorFrameMod.next()
-      const newOffset = getOffset(currentOffset)
+      const newOffset = getOffset(config.imgOffset)
       colorCells = buildRgbGridCells({ cells: config.cells, cellSize: config.cellSize, offset: newOffset })
-      currentOffset = newOffset
+      config.imgOffset = newOffset
       updated = true
     }
 
@@ -202,7 +195,7 @@ export default function sketch ({ p5Instance, textManager, config }) {
 
     paintGrids({ textCells, blockCells, colorCells })
     if (config.capturing && (updated || config.captureOverride)) {
-    // if (config.capturing || config.captureOverride) {
+      // if (config.capturing || config.captureOverride) {
       config.captureOverride = false
       console.log('capturing frame')
       p5Instance.saveCanvas(namer(), 'png')
@@ -234,8 +227,8 @@ export default function sketch ({ p5Instance, textManager, config }) {
   // TODO:: encapsulate the vectors
   const getOffset = (previousOffset) => {
     const nextOffset = { x: previousOffset.x + vectorX.direction * vectorX.speed, y: previousOffset.y + vectorY.direction * vectorY.speed }
-    vectorX.direction = (nextOffset.x >= img.width - config.cellSize || nextOffset.x <= 0) ? -vectorX.direction : vectorX.direction
-    vectorY.direction = (nextOffset.y >= img.height - config.cellSize || nextOffset.y <= 0) ? -vectorY.direction : vectorY.direction
+    vectorX.direction = (nextOffset.x >= config.img.width - config.cellSize || nextOffset.x <= 0) ? -vectorX.direction : vectorX.direction
+    vectorY.direction = (nextOffset.y >= config.img.height - config.cellSize || nextOffset.y <= 0) ? -vectorY.direction : vectorY.direction
 
     return nextOffset
   }
@@ -319,7 +312,7 @@ export default function sketch ({ p5Instance, textManager, config }) {
   }
 
   const getColor = (xLoc, yLoc, offset) => {
-    var pix = img.drawingContext.getImageData(xLoc + offset.x, yLoc + offset.y, 1, 1).data
+    var pix = config.img.drawingContext.getImageData(xLoc + offset.x, yLoc + offset.y, 1, 1).data
     return p5Instance.color(pix[0], pix[1], pix[2])
   }
 }

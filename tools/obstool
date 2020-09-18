@@ -78,7 +78,7 @@ buildit() {
     TARG=$2
     pushd $TARG
     mkmp4 $FILE
-    if $MAKEGIF ; then
+    if $MAKE_GIF ; then
         mkgif $FILE
         echo "chrome $TARG/$FILE.gif"
     fi
@@ -109,7 +109,7 @@ setFilename() {
 
 while [ "$1" != "" ]; do
     case $1 in
-        -g || --gif )
+        -g | --gif )
             $MAKE_GIF = true
         ;;
         -a | --all )

@@ -7,7 +7,8 @@ const config = () => {
     colorFrameMod,
     inflectionVector,
     textFrameMod,
-    randomizeVectors
+    randomizeVectors,
+    randomGridOffset
   } = out()
 
   return {
@@ -31,6 +32,11 @@ const config = () => {
       this.inflectionVector.set(newVecs.inflectionVector)
       // TODO: need to set the new data that also happens in the "onFinishChange" funcs. doh!
     },
+    offsetGrid: function () {
+      this.imgOffset = randomGridOffset(this.img, this.cellSize)
+    },
+    img: {},
+    imgOffset: {},
     paused: false,
     textProvider: null,
     useColor: true,

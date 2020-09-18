@@ -19,9 +19,14 @@ export default class GuiControl {
       .onChange(() => {
         params.canvasReset = true
       }).listen()
-    gui.add(params, 'cellSize').min(8).max(40).step(1).listen()
+    gui.add(params, 'cellSize').min(8).max(40).step(1)
+      .onChange(() => {
+        params.canvasReset = true
+      }).listen()
 
     gui.add(params, 'resetVectors').name('RandomizeVecs')
+    gui.add(params, 'offsetGrid').name('randomImageLocation')
+
     gui.add(params, 'redefineCorpus').name('new texts')
 
     gui.add(params, 'p5frameRate').min(1).max(60).step(1).listen()

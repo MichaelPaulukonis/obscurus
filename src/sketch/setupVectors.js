@@ -64,9 +64,15 @@ const randomizeVectors = () => {
   }
 }
 
+const randomGridOffset = (grid, cellSize) => ({
+  x: Math.floor(Math.random() * grid.width - cellSize),
+  y: Math.floor(Math.random() * grid.height - cellSize)
+})
+
 const outs = () => ({
   ...{ ...randomizeVectors() },
-  randomizeVectors
+  randomizeVectors,
+  randomGridOffset
 })
 
 export default outs
