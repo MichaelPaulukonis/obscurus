@@ -23,6 +23,9 @@ let namer = null
 const vectorX = { direction: 1, speed: 2 }
 const vectorY = { direction: 1, speed: 1 }
 
+const WHITE = '#FFFFFF'
+const BLACK = '#000000'
+
 export default function sketch ({ p5Instance, textManager, config }) {
   p5Instance.disableFriendlyErrors = true
 
@@ -36,10 +39,10 @@ export default function sketch ({ p5Instance, textManager, config }) {
   }
 
   p5Instance.setup = () => {
-    if (config.noiseSeed) {
-      p5Instance.noiseSeed(config.noiseSeed)
-      p5Instance.randomSeed(config.noiseSeed)
-    }
+    const seed = config.noiseSeed ? config.noiseSeed : null
+    p5Instance.noiseSeed(seed)
+    p5Instance.randomSeed(seed)
+
     newText({ config, textManager })
     setupCanvas()
     randomImage()
@@ -48,8 +51,9 @@ export default function sketch ({ p5Instance, textManager, config }) {
   }
 
   const setupCanvas = () => {
-    canvas = p5Instance.createCanvas(config.cellSize * config.cells.x, config.cellSize * config.cells.y)
-    canvas.drop(gotFile)
+    p5Instance.createCanvas(config.cellSize * config.cells.x, config.cellSize * config.cells.y)
+    canvas = p5Instance.canvas
+    canvas.ondrop = gotFile
 
     p5Instance.frameRate(config.p5frameRate)
     p5Instance.noStroke()
@@ -155,7 +159,7 @@ export default function sketch ({ p5Instance, textManager, config }) {
   const coreDraw = () => {
     let updated = false
     config.frame += 1
-    if (config.canvasReset) {
+    if (config.canvasReset) { // these flags make me sad
       setupCanvas()
     }
     if (blockCells.length === 0 || config.blockFrameReset || config.canvasReset || config.frame - config.previousBlockFrameCount === Math.round(config.blockFrameMod.value)) {
@@ -255,7 +259,7 @@ export default function sketch ({ p5Instance, textManager, config }) {
     for (var y = 0; y < cells.y; y++) {
       for (var x = 0; x < cells.x; x++) {
         const triDnoise = (255 * p5Instance.noise(config.blockModVector.value * x * cells.x, config.blockModVector.value * y * cells.y, config.dumbT))
-        const background = triDnoise >= config.inflectionVector.value ? 'white' : 'black'
+        const background = triDnoise >= config.inflectionVector.value ? WHITE : BLACK
         bwGrid.push({
           background,
           x: x * cellSize,
@@ -292,12 +296,12 @@ export default function sketch ({ p5Instance, textManager, config }) {
     p5Instance.textAlign(p5Instance.LEFT, p5Instance.CENTER)
 
     if (config.gridOutline) {
-      p5Instance.stroke('black')
+      p5Instance.stroke(0)
     } else {
       p5Instance.noStroke()
     }
 
-    const bkgTarget = config.fillWhite ? 'white' : 'black'
+    const bkgTarget = config.fillWhite ? WHITE : BLACK
     for (let i = 0; i < blockCells.length; i++) {
       const cell = blockCells[i]
       const color = config.useColor && cell.background === bkgTarget ? colorCells[i].background : cell.background
@@ -305,7 +309,7 @@ export default function sketch ({ p5Instance, textManager, config }) {
       p5Instance.rect(cell.x, cell.y, cell.cellSize, cell.cellSize)
     }
 
-    p5Instance.fill('black')
+    p5Instance.fill(0)
     p5Instance.noStroke()
 
     textCells.forEach(cell => p5Instance.text(cell.text, cell.x, cell.y))

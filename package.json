@@ -21,6 +21,7 @@
     "cheerio": "^1.0.0-rc.3",
     "dat.gui": "^0.7.7",
     "p5": "^1.0.0",
+    "q5xjs": "0.0.2",
     "seedrandom": "^3.0.5"
   },
   "devDependencies": {

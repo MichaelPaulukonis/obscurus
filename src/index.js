@@ -1,4 +1,5 @@
-import P5 from 'p5/lib/p5.min.js'
+// import P5 from 'p5/lib/p5.min.js'
+// import Q5 from 'q5xjs/q5.js'
 import sketch from './sketch'
 import TextManager from './sketch/TextManager'
 import GuiControl from './sketch/gui'
@@ -15,7 +16,7 @@ const parseParams = () => {
   }
 }
 
-const seeder = () => [...Array(10)].map(_ => (~~(Math.random() * 36)).toString(36)).join('')
+const seeder = () => parseInt([...Array(10)].map(_ => (~~(Math.random() * 36)).toString(10)).join(''), 10)
 const queryParams = parseParams()
 
 const seed = queryParams.seed ? queryParams.seed : seeder()
@@ -34,7 +35,8 @@ const theStuff = () => {
 
   const launch = () => textManager.redefineCorpus()
     .finally((_) => {
-      new P5(builder) // eslint-disable-line no-new
+      // new P5(builder) // eslint-disable-line no-new
+      builder(new Q5())
     })
 
   launch()
