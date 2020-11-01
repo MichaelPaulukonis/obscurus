@@ -44,6 +44,8 @@ package-lock.json
 
 # dist
 dist
+obscurus
+*.zip
 
 # Service worker
 sw.*

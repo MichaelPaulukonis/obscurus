@@ -1,19 +1,19 @@
 # a thing
 
-## TODO: what it does and why it's called OBSCURUS
+## what it does and why it's called OBSCURUS
 
-the text is both obscure and obscured
+- the text is both obscure and obscured
+- a portion of a text cycles through the screen, pieces covered or revealed
 
 ## Roadmap
 
- - switch between color/black and white
- - extend B&W to grayscale (rolling out from the inflection point)
- - Add colors? Simple web colors - blue, yellow, black, red?
-   - Is this pointless, or pointful?
- - ability to select from texts
-   - add text(s)
- - re-randomize location of color in image
-   - better/different movement
+- switch between color/black and white
+- extend B&W to grayscale (rolling out from the inflection point)
+- Add colors? Simple web colors - blue, yellow, black, red?
+  - Is this pointless, or pointful?
+- ability to select from texts
+  - add text(s)
+- better/different movement
 
 ## some plans
 
@@ -68,7 +68,7 @@ Just a nice source of noise for the black-n-white obscuror
 - [CREATING VIDEOS FROM PROCESSING'S P5.JS WITH CCAPTURE.JS AND FFMPEG](https://peterbeshai.com/blog/2018-10-28-p5js-ccapture/)
   - Also contains notes on building mp4s and gifs (see below)
   - The rest of their website is worth checking out
-- https://medium.com/@ffmaer/record-p5-js-with-ccapture-js-8e3ac9488ac3
+- [recording p5 with capture.js](https://medium.com/@ffmaer/record-p5-js-with-ccapture-js-8e3ac9488ac3)
 
 ### ffmpeg on Mac
 
@@ -85,6 +85,15 @@ ffmpeg -r 30 -f image2 -s 500x500 -i "20200802210728-%06d.png" -vcodec libx264 -
 
 ```bash
 convert -delay 3.33 -loop 0 *.png output.gif
+```
+
+#### filtering, splitting, etc
+
+- https://ffmpeg.org/ffmpeg-filters.html#crop
+- https://stackoverflow.com/a/52597266/41153
+
+```shell
+ffmpeg -i polychrometext.20201022215400.mp4 -filter_complex "[0]crop=iw:ih/3:0:0[top];[0]crop=iw:ih/3:0:oh[middle];[0]crop=iw:ih/3:0:oh*2[bottom]" -map "[top]" top.mp4 -map "[middle]" middle.mp4 -map "[bottom]" bottom.mp4
 ```
 
 #### scripting
