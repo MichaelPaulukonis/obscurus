@@ -132,8 +132,32 @@ export default function sketch ({ p5Instance, textManager, config }) {
         newText({ config, textManager })
         break
 
-      case 'o': // for dev purposes
+      case 'o': // for dev purposes, mostly, but... not uninteresting
         config.gridOutline = !config.gridOutline
+        break
+
+      case 'r':
+        config.resetVectors()
+        config.textFrameReset = true
+        config.blockFrameReset = true
+        config.colorFrameReset = true
+        break
+
+      case 'g':
+        config.offsetGrid()
+        break
+
+      case 'c':
+        textManager.redefineCorpus()
+        break
+
+      case 'w':
+        config.fillWhite = !config.fillWhite
+        break
+
+      case 'e':
+        config.useColor = !config.useColor
+        break
     }
   }
 
