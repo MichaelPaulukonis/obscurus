@@ -5,6 +5,21 @@
 - the text is both obscure and obscured
 - a portion of a text cycles through the screen, pieces covered or revealed
 
+## keys
+
+Arrow-up/Arrow-down - change amount of black squares
+space - pause
+n - increment all values while paused. NOTE: values incrase, but image may not change.
+i - random image of 5 pre-loaded (or drag-n-drop your own)
+s - save 200 image frames (press again while saving to cancel)
+t - switch to another of 20 pre-loaded texts
+o - grid outline on/off
+r - randomize values
+g - randomize image position
+c - load 20 new texts
+w - fill white on/off
+e - color on/off
+
 ## Roadmap
 
 - switch between color/black and white

@@ -12,7 +12,10 @@
     "lint": "standard",
     "deploy": "gh-pages -t -d dist",
     "bump": "npm version patch",
-    "publish": "npm run bump && DEPLOY_ENV=GH_PAGES npm run build && npm run deploy"
+    "publish": "npm run bump && DEPLOY_ENV=GH_PAGES npm run build && npm run deploy",
+    "zip:move": "[ ! -f dist ] || mv dist obscurus",
+    "zip:clean": "rm -f obscurus.zip",
+    "zipit": "npm run zip:move && rm -f obscurus/*.map && npm run zip:clean && zip -r obscurus ./obscurus"
   },
   "dependencies": {
     "@babel/polyfill": "^7.10.4",
