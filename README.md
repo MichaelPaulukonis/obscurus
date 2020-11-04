@@ -1,24 +1,26 @@
-# a thing
+# tentatively, a thing
 
 ## what it does and why it's called OBSCURUS
 
 - the text is both obscure and obscured
 - a portion of a text cycles through the screen, pieces covered or revealed
 
+## as seen at [AvantGarde Boot Camp](https://abc.perspektive.at/obscurator-visually-difficult/)
+
 ## keys
 
-Arrow-up/Arrow-down - change amount of black squares
-space - pause
-n - increment all values while paused. NOTE: values incrase, but image may not change.
-i - random image of 5 pre-loaded (or drag-n-drop your own)
-s - save 200 image frames (press again while saving to cancel)
-t - switch to another of 20 pre-loaded texts
-o - grid outline on/off
-r - randomize values
-g - randomize image position
-c - load 20 new texts
-w - fill white on/off
-e - color on/off
+- Arrow-up/Arrow-down - change amount of black squares
+- space - pause
+- n - increment all values while paused. NOTE: values incrase, but image may not change.
+- i - random image of 5 pre-loaded (or drag-n-drop your own)
+- s - save 200 image frames (press again while saving to cancel)
+- t - switch to another of 20 pre-loaded texts
+- o - grid outline on/off
+- r - randomize values
+- g - randomize image position
+- c - load 20 new texts
+- w - fill white on/off
+- e - color on/off
 
 ## Roadmap
 
@@ -30,16 +32,9 @@ e - color on/off
   - add text(s)
 - better/different movement
 
-## some plans
-
-- obtain a gif (at random)
-- obtain a text
-- "rebuild" the gif (a-la-imagetexter) with the text, frame by frame
-- Doesn't have to be saveable - just displayable
-
-- instead of a gif, could just use any image, and do a drunkard's walk through it
-- display a blown-up section, then move one of 8 directions and re-do
-- it "animates" the colors  
+## fonts and design
+- http://yoworks.com/telegrama/index.html
+- also some shameless copying of the lovely design at [perspektive](https://abc.perspektive.at/obscurator-visually-difficult/)
 
 ### NO PLAN SURVIVES CONTACT WITH THE ENEMY
 

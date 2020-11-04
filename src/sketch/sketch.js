@@ -50,6 +50,7 @@ export default function sketch ({ p5Instance, textManager, config }) {
   const setupCanvas = () => {
     canvas = p5Instance.createCanvas(config.cellSize * config.cells.x, config.cellSize * config.cells.y)
     canvas.drop(gotFile)
+    canvas.parent('sketch-holder')
 
     p5Instance.frameRate(config.p5frameRate)
     p5Instance.noStroke()
