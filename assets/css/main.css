@@ -1,0 +1,11 @@
+@font-face {
+    font-family: 'telegrama_render';
+    font-style: normal;
+    font-weight: normal;
+    src: url('../fonts/telegrama_render.otf') format('opentype');
+}
+
+html,
+body {
+    font-family: 'telegrama_render', sans-serif;
+}
