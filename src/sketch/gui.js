@@ -9,7 +9,7 @@ export default class GuiControl {
     gui.add(params, 'paused').listen()
     gui.add(params, 'useColor').name('color')
     gui.add(params, 'fillWhite').name('Fill white').listen()
-    gui.add(params, 'captureLimit').min(10).max(1000).step(10).listen()
+    gui.add(params, 'captureLimit').min(1).max(1000).step(10).listen()
 
     gui.add(params.cells, 'x').min(1).max(40).step(1)
       .onChange(() => {

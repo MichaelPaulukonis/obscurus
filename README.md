@@ -42,13 +42,6 @@ I realized I needed neither a gif, frames, nor an image for this project
 [all of which remain good ideas for something else]
 Just a nice source of noise for the black-n-white obscuror
 
-## quick plan
-
-1. stub out text-gen (single-char, whatever)
-2. stub out color getter - alternate or something
-3. build the darn squares
-4. put some text in 'em
-
 ## some source references
 
 - https://developers.giphy.com/dashboard/

@@ -1,11 +1,15 @@
-#!/usr/local/bin/zsh
+#!/bin/zsh
 
 # OBSCUR - a script to move downloaded OBSCURUS images and build an MP4 and/or GIF
 
-SOURCE=~/Downloads
-TARGET_ROOT=$SOURCE/obscur.out
-FILENAME=
-MAKE_GIF=false
+# SOURCE=~/Downloads
+# TARGET_ROOT=$SOURCE/obscur.out
+# FILENAME=
+# MAKE_GIF=false
+
+DIR="`pwd`"
+
+source $DIR/tool.config
 
 usage()
 {

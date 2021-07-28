@@ -100,6 +100,7 @@ export default function sketch ({ p5Instance, textManager, config }) {
 
   p5Instance.keyTyped = () => {
     const key = p5Instance.key
+    const CONTROL = p5Instance.keyCode === p5Instance.CONTROL
 
     switch (key) {
       case ' ':
@@ -117,7 +118,11 @@ export default function sketch ({ p5Instance, textManager, config }) {
         break
 
       case 's':
-        if (config.capturing) {
+        if (CONTROL) {
+          // hah-hah. this doesn't work
+          saveSketch()
+          break
+        } else if (config.capturing) {
           config.captureOverride = false
           p5Instance.frameRate(config.p5frameRate)
         } else {
@@ -160,6 +165,7 @@ export default function sketch ({ p5Instance, textManager, config }) {
         config.useColor = !config.useColor
         break
     }
+    return false
   }
 
   const newText = ({ config, textManager }) => {
@@ -234,6 +240,20 @@ export default function sketch ({ p5Instance, textManager, config }) {
   }
 
   p5Instance.draw = draw
+
+  const saveSketch = () => {
+    const getDateFormatted = () => {
+      const d = new Date()
+      const df = `${d.getFullYear()}${pad((d.getMonth() + 1), 2)}${pad(d.getDate(), 2)}.${pad(d.getHours(), 2)}${pad(d.getMinutes(), 2)}${pad(d.getSeconds(), 2)}`
+      return df
+    }
+
+    const pad = (nbr, width, fill = '0') => {
+      nbr = nbr + ''
+      return nbr.length >= width ? nbr : new Array(width - nbr.length + 1).join(fill) + nbr
+    }
+    p5Instance.saveCanvas(`OBSCURUS.${getDateFormatted()}.png`)
+  }
 
   const windowFactory = (cells) => (startIndex) => {
     const bloc = textManager.windowMaker(cells.x * cells.y)(startIndex)
